@@ -61,7 +61,7 @@ describe('AIDebug', () => {
       persistence: {
         baseDir: './debug',
         structure: 'key-based',
-        compression: 'gzip',
+        compression: 'none',
       },
     };
 
@@ -128,7 +128,7 @@ describe('AIDebug', () => {
       persistence: {
         baseDir: './debug',
         structure: 'key-based',
-        compression: 'gzip',
+        compression: 'none',
       },
     };
 

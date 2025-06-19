@@ -83,10 +83,25 @@ export class DebugPersistence {
       mkdirSync(dir, { recursive: true });
     }
 
+    // Custom replacer to handle BigInt and other non-serializable types
+    const seen = new WeakSet();
+    const replacer = (_key: string, value: unknown): unknown => {
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular]';
+        }
+        seen.add(value);
+      }
+      return value;
+    };
+
     const data =
       this.config.compression === 'gzip'
-        ? await this.compress(JSON.stringify(entry, null, 2))
-        : JSON.stringify(entry, null, 2);
+        ? await this.compress(JSON.stringify(entry, replacer, 2))
+        : JSON.stringify(entry, replacer, 2);
 
     writeFileSync(path, data);
   }
@@ -114,14 +129,16 @@ export class DebugPersistence {
       const actionDir = this.sanitizePath(entry.action);
       const keyDir = this.sanitizePath(entry.key);
       const timestamp = new Date(entry.timestamp).toISOString().replace(/[:.]/g, '-');
-      return join(this.config.baseDir, actionDir, keyDir, `${timestamp}.json`);
+      const ext = this.config.compression === 'gzip' ? '.json.gz' : '.json';
+      return join(this.config.baseDir, actionDir, keyDir, `${timestamp}${ext}`);
     }
     // Structure: baseDir/YYYY/MM/DD/action-key-timestamp.json
     const date = new Date(entry.timestamp);
     const year = date.getFullYear().toString();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    const filename = `${entry.action}-${entry.key}-${date.getTime()}.json`;
+    const ext = this.config.compression === 'gzip' ? '.json.gz' : '.json';
+    const filename = `${entry.action}-${entry.key}-${date.getTime()}${ext}`;
     return join(this.config.baseDir, year, month, day, this.sanitizePath(filename));
   }
 

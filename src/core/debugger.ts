@@ -192,13 +192,13 @@ export class AIDebug {
    */
   async wrap<T>(
     action: string,
-    fn: () => Promise<T> | T,
+    fn: (...args: unknown[]) => Promise<T> | T,
     options: WrapOptions = {},
     ...args: unknown[]
   ): Promise<T> {
     // If debugging is disabled, just execute the function
     if (!this.enabled) {
-      return await fn();
+      return await fn(...args);
     }
 
     // Check if action is in action map
@@ -239,7 +239,7 @@ export class AIDebug {
           cached = true;
         } else {
           // Execute function
-          result = await fn();
+          result = await fn(...args);
 
           // Cache result if conditions are met
           if (template.cache.shouldCache?.(result, context) ?? true) {
@@ -253,7 +253,7 @@ export class AIDebug {
         }
       } else {
         // Execute function without caching
-        result = await fn();
+        result = await fn(...args);
       }
 
       // Record success
@@ -329,10 +329,11 @@ export class AIDebug {
    */
   async raw<T>(
     action: string,
-    fn: () => Promise<T> | T,
+    fn: (...args: unknown[]) => Promise<T> | T,
     options: Omit<WrapOptions, 'template'> = {},
+    ...args: unknown[]
   ): Promise<T> {
-    return this.wrap(action, fn, { ...options, template: 'auto', raw: true });
+    return this.wrap(action, fn, { ...options, template: 'auto', raw: true }, ...args);
   }
 
   /**

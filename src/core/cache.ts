@@ -3,14 +3,14 @@
  *
  * @interface CacheConfig
  * @property {boolean} enabled - Whether caching is enabled globally
- * @property {number} defaultTTL - Default time-to-live in seconds
+ * @property {number} defaultTTL - Default time-to-live in milliseconds
  * @property {number} maxSize - Maximum number of cache entries
  * @property {'lru' | 'fifo'} strategy - Eviction strategy when cache is full
  *
  * @example
  * const cacheConfig: CacheConfig = {
  *   enabled: true,
- *   defaultTTL: 300, // 5 minutes
+ *   defaultTTL: 300000, // 5 minutes in milliseconds
  *   maxSize: 1000,
  *   strategy: 'lru' // Least Recently Used
  * };
@@ -52,13 +52,13 @@ interface CacheEntry<T> {
  * @example
  * const cache = new Cache({
  *   enabled: true,
- *   defaultTTL: 300,
+ *   defaultTTL: 300000, // 5 minutes in milliseconds
  *   maxSize: 1000,
  *   strategy: 'lru'
  * });
  *
  * // Store a value
- * await cache.set('user:123', userData, 600); // 10 min TTL
+ * await cache.set('user:123', userData, 600000); // 10 min TTL in milliseconds
  *
  * // Retrieve a value
  * const user = await cache.get<User>('user:123');
@@ -128,7 +128,7 @@ export class Cache {
    * @template T - Type of the value to cache
    * @param {string} key - Cache key
    * @param {T} value - Value to cache
-   * @param {number} [ttl] - Time-to-live in seconds (overrides default)
+   * @param {number} [ttl] - Time-to-live in milliseconds (overrides default)
    *
    * @example
    * // Cache with default TTL
@@ -136,10 +136,15 @@ export class Cache {
    *
    * @example
    * // Cache with custom TTL
-   * await cache.set('session:abc123', sessionData, 3600); // 1 hour
+   * await cache.set('session:abc123', sessionData, 3600000); // 1 hour in milliseconds
    */
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     if (!this.config.enabled) return;
+
+    // Handle zero or negative TTL - don't cache at all
+    if (ttl !== undefined && ttl <= 0) {
+      return;
+    }
 
     const expiresAt = Date.now() + (ttl || this.config.defaultTTL);
 
@@ -151,8 +156,17 @@ export class Cache {
     this.cache.set(key, { value, expiresAt });
 
     // Update access order
-    this.removeFromAccessOrder(key);
-    this.accessOrder.push(key);
+    // For FIFO: only add to order if it's a new key
+    // For LRU: always update to make it most recently used
+    if (this.config.strategy === 'fifo') {
+      if (!this.accessOrder.includes(key)) {
+        this.accessOrder.push(key);
+      }
+    } else {
+      // LRU strategy
+      this.removeFromAccessOrder(key);
+      this.accessOrder.push(key);
+    }
   }
 
   /**
@@ -167,6 +181,48 @@ export class Cache {
   async delete(key: string): Promise<boolean> {
     this.removeFromAccessOrder(key);
     return this.cache.delete(key);
+  }
+
+  /**
+   * Checks if a key exists in the cache.
+   * Does not update access order or check expiration.
+   *
+   * @param {string} key - Cache key to check
+   * @returns {Promise<boolean>} True if key exists, false otherwise
+   *
+   * @example
+   * if (await cache.has('user:123')) {
+   *   console.log('User data is cached');
+   * }
+   */
+  async has(key: string): Promise<boolean> {
+    if (!this.config.enabled) return false;
+
+    const entry = this.cache.get(key);
+    if (!entry) return false;
+
+    // Check if expired
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      this.removeFromAccessOrder(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns the current number of entries in the cache.
+   * Does not include expired entries.
+   *
+   * @returns {number} Number of cache entries
+   *
+   * @example
+   * console.log(`Cache contains ${cache.size()} entries`);
+   */
+  size(): number {
+    if (!this.config.enabled) return 0;
+    return this.cache.size;
   }
 
   /**

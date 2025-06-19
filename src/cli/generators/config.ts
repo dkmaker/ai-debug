@@ -100,7 +100,7 @@ export function generateConfig(answers: ConfigAnswers): Config {
     persistence: {
       baseDir: './debug',
       structure: 'key-based',
-      compression: 'gzip',
+      compression: 'none',
     },
   };
 }

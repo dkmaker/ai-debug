@@ -58,16 +58,21 @@ function calculateSize(data: unknown): number {
 }
 
 /**
+ * Default hash function using SHA-256.
  * Creates a short hash of data for cache keys.
  *
  * @param data - Data to hash
  * @returns 8-character hash
- * @private
  */
-function hash(data: unknown): string {
+export function defaultHasher(data: unknown): string {
   const str = JSON.stringify(data);
   return createHash('sha256').update(str).digest('hex').slice(0, 8);
 }
+
+/**
+ * Type definition for hash function that can be injected.
+ */
+export type HashFunction = (data: unknown) => string;
 
 /**
  * Template for HTTP/REST API operations.
@@ -139,7 +144,8 @@ export const httpTemplate: Template = {
     },
   }),
   cache: {
-    key: (ctx) => `${ctx.method}:${ctx.url}:${hash(ctx.body)}`,
+    key: (ctx, hasher: HashFunction = defaultHasher) =>
+      `${ctx.method}:${ctx.url}:${hasher(ctx.body)}`,
     ttl: 5 * 60 * 1000, // 5 minutes
     shouldCache: (result) => ((result as { status?: number } | null)?.status || 0) < 400,
   },

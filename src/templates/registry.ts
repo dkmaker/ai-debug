@@ -160,7 +160,7 @@ export class TemplateRegistry {
    * // ['base', 'http', 'database', 'file', 'queue', 'business', 'auto']
    */
   list(): string[] {
-    return Array.from(this.templates.keys());
+    return Array.from(this.templates.keys()).sort();
   }
 
   /**

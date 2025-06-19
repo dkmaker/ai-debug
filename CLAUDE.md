@@ -127,6 +127,10 @@ Key configuration in `tsup.config.ts`:
 - Dependencies are externalized (not bundled)
 - Preserves Node.js shims for compatibility
 
+### Package manager
+
+The project uses `pnpm` and is optimized for this
+
 ### Key Design Principles
 1. Minimal repository footprint - most functionality lives in node_modules
 2. Production-safe - debug code can be automatically removed for production builds

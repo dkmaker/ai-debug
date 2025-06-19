@@ -24,6 +24,10 @@
     "test:coverage": "vitest run --coverage",
     "lint": "biome check --write .",
     "lint:fix": "biome check --write --unsafe .",
+    "lint:tests": "biome check tests/",
+    "lint:tests:fix": "biome check --write tests/",
+    "lint:all": "biome check --write . && pnpm test",
+    "pretest": "biome check tests/",
     "doc:coverage": "tsx src/tools/doc-coverage.ts src",
     "prepublishOnly": "pnpm run build && pnpm test"
   },

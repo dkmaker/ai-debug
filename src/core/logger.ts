@@ -1,4 +1,12 @@
-import { type WriteStream, createWriteStream, existsSync, mkdirSync, statSync } from 'node:fs';
+import {
+  type WriteStream,
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+} from 'node:fs';
 import { dirname } from 'node:path';
 import type { DebugEntry } from '../types/index.js';
 
@@ -74,13 +82,13 @@ interface LogQueueEntry {
  * - Use JSON format for programmatic parsing
  */
 export class FileLogger {
-  private static instance: FileLogger;
+  static instance: FileLogger | undefined;
   private config: FileLogConfig;
   private writeQueue: LogQueueEntry[] = [];
   private isWriting = false;
   private fileStream?: WriteStream;
   private currentFileIndex = 0;
-  private currentFileSize = 0;
+  currentFileSize = 0;
   private maxSizeBytes: number;
 
   /**
@@ -91,7 +99,7 @@ export class FileLogger {
    */
   private constructor(config: FileLogConfig) {
     this.config = config;
-    this.maxSizeBytes = this.parseSize(config.maxSize);
+    this.maxSizeBytes = FileLogger.parseSize(config.maxSize);
 
     if (config.enabled) {
       this.ensureDirectoryExists();
@@ -159,6 +167,13 @@ export class FileLogger {
   private async processQueue(): Promise<void> {
     if (this.isWriting || this.writeQueue.length === 0) return;
 
+    // If logging is disabled, resolve all queued promises immediately
+    if (!this.config.enabled || !this.fileStream) {
+      const batch = this.writeQueue.splice(0, this.writeQueue.length);
+      batch.forEach(({ resolve }) => resolve());
+      return;
+    }
+
     this.isWriting = true;
     const batch = this.writeQueue.splice(0, 100); // Process 100 at a time
 
@@ -223,19 +238,39 @@ export class FileLogger {
   /**
    * Rotates log files when size limit is reached.
    * Maintains a circular buffer of log files.
-   *
-   * @private
    */
-  private rotateFile(): void {
-    if (this.fileStream) {
-      this.fileStream.end();
+  rotateFile(): void {
+    try {
+      if (this.fileStream) {
+        this.fileStream.end();
+      }
+
+      const currentPath = this.config.path;
+      const basePath = currentPath.replace(/\.log$/, '');
+
+      // Rename existing files in reverse order to make room
+      for (let i = this.config.maxFiles - 1; i >= 1; i--) {
+        const oldPath = i === 1 ? currentPath : `${basePath}.${i - 1}.log`;
+        const newPath = `${basePath}.${i}.log`;
+
+        if (existsSync(oldPath)) {
+          if (i === this.config.maxFiles - 1 && existsSync(newPath)) {
+            // Delete the oldest file if we're at max
+            unlinkSync(newPath);
+          }
+          renameSync(oldPath, newPath);
+        }
+      }
+
+      this.currentFileSize = 0;
+      this.openFileStream();
+    } catch (error) {
+      // If rotation fails, continue with current file
+      console.error('File rotation error:', error);
+      if (!this.fileStream) {
+        this.openFileStream();
+      }
     }
-
-    // Rotate existing files
-    this.currentFileIndex = (this.currentFileIndex + 1) % this.config.maxFiles;
-    this.currentFileSize = 0;
-
-    this.openFileStream();
   }
 
   /**
@@ -281,26 +316,30 @@ export class FileLogger {
    * @private
    */
   private ensureDirectoryExists(): void {
-    const dir = dirname(this.config.path);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
+    try {
+      const dir = dirname(this.config.path);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+    } catch (error) {
+      console.error('Failed to create log directory:', error);
+      // Continue without throwing - logging will fail but app continues
     }
   }
 
   /**
    * Parses human-readable size strings to bytes.
    *
-   * @private
    * @param {string} size - Size string (e.g., '10MB', '1GB')
    * @returns {number} Size in bytes
    *
    * @example
-   * parseSize('10MB') // returns 10485760
-   * parseSize('1GB')  // returns 1073741824
+   * FileLogger.parseSize('10MB') // returns 10485760
+   * FileLogger.parseSize('1GB')  // returns 1073741824
    */
-  private parseSize(size: string): number {
+  static parseSize(size: string): number {
     const match = size.match(/^(\d+)([KMG]B)?$/i);
-    if (!match) return 100 * 1024 * 1024; // Default 100MB
+    if (!match) return 0; // Return 0 for invalid format
 
     const value = Number.parseInt(match[1], 10);
     const unit = match[2]?.toUpperCase() || 'B';
