@@ -5,7 +5,7 @@ import type { Config } from '../src/types/index.js';
 describe('AIDebug', () => {
   it('should create an instance', () => {
     const config: Config = {
-      version: '2.0.0',
+      version: '1.0.0',
       features: {
         cache: {
           enabled: true,
@@ -72,7 +72,7 @@ describe('AIDebug', () => {
 
   it('should execute wrapped function', async () => {
     const config: Config = {
-      version: '2.0.0',
+      version: '1.0.0',
       features: {
         cache: {
           enabled: false,

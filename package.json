@@ -3,28 +3,24 @@
   "version": "0.1.0",
   "description": "AI-optimized debugging and caching system for Node.js applications with minimal repository footprint",
   "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "bin": {
-    "ai-debug": "./bin/ai-debug.js"
+    "ai-debug": "./dist/cli/index.js"
   },
-  "files": ["dist", "bin"],
+  "files": ["dist"],
   "scripts": {
-    "build": "pnpm run build:clean && pnpm run build:esm && pnpm run build:cjs && pnpm run build:types",
-    "build:clean": "rm -rf dist",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
-    "build:types": "tsc -p tsconfig.types.json",
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "biome check --write .",
     "lint:fix": "biome check --write --unsafe .",
@@ -61,6 +57,7 @@
     "@types/babel__traverse": "^7.20.7",
     "@types/node": "^22.10.2",
     "@vitest/coverage-v8": "^2.1.8",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^2.1.8"

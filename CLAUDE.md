@@ -15,7 +15,8 @@ The implementation is complete with:
 - ✅ LRU/FIFO cache implementation
 - ✅ Singleton file logger
 - ✅ CLI with init command
-- ✅ TypeScript build setup (ESM/CJS dual module support)
+- ✅ TypeScript build setup using tsup (ESM/CJS dual module support)
+- ✅ Build-time version injection
 - ✅ Tests setup and passing
 - ✅ All linting issues fixed (no 'any' types, proper error handling)
 - ⏳ Documentation generator (placeholder)
@@ -28,8 +29,11 @@ The implementation is complete with:
 # Install dependencies using pnpm (when package.json exists)
 pnpm install
 
-# Build the TypeScript code
+# Build the TypeScript code (using tsup)
 pnpm run build
+
+# Development mode (watch for changes)
+pnpm run dev
 
 # Run tests
 pnpm test
@@ -88,8 +92,24 @@ The package maintains a minimal footprint in user repositories:
 - **Node.js**: 22+
 - **Package Manager**: pnpm 10-latest
 - **TypeScript**: ESM module with CJS compatibility
+- **Build Tool**: tsup (for fast, zero-config builds)
 - **Build Output**: Dual ESM/CJS support
 - **Linter**: Biome (for code quality and formatting)
+
+### Build System (tsup)
+The project uses tsup for building TypeScript code with the following features:
+- Fast builds using esbuild under the hood
+- Automatic dual format output (ESM `.js` and CJS `.cjs`)
+- Build-time version injection using `define` option
+- Automatic shebang injection for CLI executable
+- Source maps for debugging
+- Type declarations generation
+
+Key configuration in `tsup.config.ts`:
+- Entry points: `src/index.ts` and `src/cli/index.ts`
+- Version injection: `__PACKAGE_VERSION__` replaced at build time
+- Post-build hook adds shebang to CLI file
+- Dependencies are externalized (not bundled)
 
 ### Key Design Principles
 1. Minimal repository footprint - most functionality lives in node_modules

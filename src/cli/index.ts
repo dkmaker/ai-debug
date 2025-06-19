@@ -11,12 +11,16 @@ import { suggestCommand } from './commands/suggest.js';
 import { viewCommand } from './commands/view.js';
 import { watchCommand } from './commands/watch.js';
 
+// Version will be injected at build time
+declare const __PACKAGE_VERSION__: string;
+const VERSION = __PACKAGE_VERSION__;
+
 const program = new Command();
 
 program
   .name('ai-debug')
   .description('AI-optimized debugging and caching system for Node.js applications')
-  .version('0.1.0');
+  .version(VERSION);
 
 // Add commands
 program.addCommand(initCommand);

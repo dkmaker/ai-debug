@@ -12,7 +12,7 @@ interface ConfigAnswers {
 
 export function generateConfig(answers: ConfigAnswers): Config {
   return {
-    version: '2.0.0',
+    version: '1.0.0',
     features: {
       cache: {
         enabled: answers.enableCache ?? true,
