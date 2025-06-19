@@ -1,5 +1,34 @@
 import type { Template } from '../types/index.js';
 
+/**
+ * Base template that all other templates extend from.
+ * Provides minimal data capture with standard fields.
+ *
+ * @const baseTemplate
+ *
+ * Captured fields:
+ * - action: Operation identifier
+ * - key: Cache key or identifier
+ * - timestamp: ISO timestamp of operation
+ * - duration_ms: Operation duration
+ * - status: 'success' or 'failure'
+ * - error: Error message if failed
+ * - result: Operation result if successful
+ *
+ * Cache behavior:
+ * - Enabled by default with 1 hour TTL
+ * - Only caches non-null results
+ *
+ * @example
+ * // Custom template extending base
+ * const myTemplate: Template = {
+ *   extends: 'base',
+ *   debugData: (context, result, error, parentData) => ({
+ *     ...parentData,
+ *     customField: context.customValue
+ *   })
+ * };
+ */
 export const baseTemplate: Template = {
   debugData: (context, result, error) => ({
     action: context.action,

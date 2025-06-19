@@ -7,6 +7,37 @@ import { Cache } from './cache.js';
 import { FileLogger } from './logger.js';
 import { DebugPersistence } from './persistence.js';
 
+/**
+ * Main debugging class that provides operation wrapping with performance tracking,
+ * caching, and comprehensive logging. This is the primary entry point for ai-debug.
+ *
+ * @class AIDebug
+ *
+ * Common patterns:
+ * - Use wrap() for normal debugging with templates
+ * - Use raw() for detailed debugging of complex objects
+ * - Register custom templates for domain-specific debugging
+ * - Configure caching per operation type for optimal performance
+ *
+ * @example
+ * // Initialize with configuration
+ * const debug = new AIDebug(config);
+ *
+ * // Wrap an HTTP operation
+ * const data = await debug.wrap('fetch_users', async () => {
+ *   return await fetch('/api/users');
+ * }, { template: 'http' });
+ *
+ * // Use raw mode for detailed debugging
+ * const result = await debug.raw('complex_calc', () => {
+ *   return performComplexCalculation();
+ * });
+ *
+ * Troubleshooting:
+ * - If debugging is not working, check NODE_ENV !== 'production'
+ * - Ensure config.features.debug.enabled is true
+ * - Check file permissions for debug log directory
+ */
 export class AIDebug {
   private config: Config;
   private cache?: Cache;
@@ -16,6 +47,21 @@ export class AIDebug {
   public actionMapRegistry?: ActionMapRegistry;
   private enabled: boolean;
 
+  /**
+   * Creates a new AIDebug instance.
+   *
+   * @param {Config} config - Configuration object for debugging behavior
+   * @param {string} [customTemplatesPath] - Path to directory with custom templates
+   *
+   * @example
+   * const debug = new AIDebug({
+   *   version: '1.0.0',
+   *   features: {
+   *     debug: { enabled: true },
+   *     cache: { enabled: true, defaultTTL: 300 }
+   *   }
+   * });
+   */
   constructor(config: Config, customTemplatesPath?: string) {
     this.config = config;
     this.enabled = config.features.debug.enabled && process.env.NODE_ENV !== 'production';
@@ -35,6 +81,13 @@ export class AIDebug {
     }
   }
 
+  /**
+   * Loads custom templates from a directory.
+   * Templates must export objects with a debugData function.
+   *
+   * @private
+   * @param {string} templatesPath - Path to templates directory
+   */
   private async loadCustomTemplates(templatesPath: string): Promise<void> {
     try {
       const { existsSync, readdirSync } = await import('node:fs');
@@ -68,6 +121,13 @@ export class AIDebug {
     }
   }
 
+  /**
+   * Loads action map configuration from actions.js file.
+   * Action maps auto-configure debugging options based on action names.
+   *
+   * @private
+   * @param {string} basePath - Base path to search for actions.js
+   */
   private async loadActionMaps(basePath: string): Promise<void> {
     try {
       const { existsSync } = await import('node:fs');
@@ -93,6 +153,43 @@ export class AIDebug {
     }
   }
 
+  /**
+   * Wraps an operation with debugging, caching, and performance tracking.
+   * This is the main method for debugging operations in your application.
+   *
+   * @template T - The return type of the wrapped function
+   * @param {string} action - Unique identifier for this operation (e.g., 'fetch_user', 'db_query')
+   * @param {Function} fn - The async or sync function to wrap and monitor
+   * @param {WrapOptions} [options={}] - Configuration for debugging behavior
+   * @param {...unknown} args - Additional arguments passed to action map resolution
+   * @returns {Promise<T>} The result from the wrapped function
+   * @throws {Error} Propagates any errors from the wrapped function
+   *
+   * @example
+   * // Basic usage with HTTP template
+   * const data = await debug.wrap('fetch_user', async () => {
+   *   const response = await fetch('/api/user/123');
+   *   return response.json();
+   * }, { template: 'http' });
+   *
+   * @example
+   * // With custom context
+   * const result = await debug.wrap('db_query',
+   *   () => db.query('SELECT * FROM users WHERE id = ?', [userId]),
+   *   {
+   *     template: 'database',
+   *     context: {
+   *       sql: 'SELECT * FROM users WHERE id = ?',
+   *       params: [userId],
+   *       database: 'production'
+   *     }
+   *   }
+   * );
+   *
+   * @example
+   * // Using action maps (auto-configuration)
+   * const users = await debug.wrap('getUserList', fetchUsers);
+   */
   async wrap<T>(
     action: string,
     fn: () => Promise<T> | T,
@@ -202,6 +299,34 @@ export class AIDebug {
     }
   }
 
+  /**
+   * Wraps an operation in raw debugging mode.
+   * Captures complete object state without template filtering.
+   * Useful for debugging complex objects or unknown data structures.
+   *
+   * @template T - The return type of the wrapped function
+   * @param {string} action - Unique identifier for this operation
+   * @param {Function} fn - The function to wrap
+   * @param {Omit<WrapOptions, 'template'>} [options={}] - Options excluding template
+   * @returns {Promise<T>} The result from the wrapped function
+   *
+   * @example
+   * // Debug a complex calculation
+   * const result = await debug.raw('calculate_metrics', () => {
+   *   return {
+   *     users: getUserMetrics(),
+   *     performance: getPerformanceData(),
+   *     system: getSystemStats()
+   *   };
+   * });
+   *
+   * @example
+   * // Debug with custom context
+   * const data = await debug.raw('process_batch',
+   *   () => processBatch(items),
+   *   { context: { batchSize: items.length } }
+   * );
+   */
   async raw<T>(
     action: string,
     fn: () => Promise<T> | T,
@@ -210,6 +335,23 @@ export class AIDebug {
     return this.wrap(action, fn, { ...options, template: 'auto', raw: true });
   }
 
+  /**
+   * Logs a message with optional data to the debug system.
+   * Useful for adding custom log entries alongside wrapped operations.
+   *
+   * @param {string} level - Log level (debug, info, warn, error)
+   * @param {string} message - Log message
+   * @param {unknown} [data] - Additional data to log
+   *
+   * @example
+   * await debug.log('info', 'User login successful', { userId: 123 });
+   *
+   * @example
+   * await debug.log('error', 'Payment failed', {
+   *   orderId: 456,
+   *   error: 'Insufficient funds'
+   * });
+   */
   async log(level: string, message: string, data?: unknown): Promise<void> {
     if (!this.enabled) return;
 
@@ -230,6 +372,13 @@ export class AIDebug {
     await this.recordDebugEntry(entry);
   }
 
+  /**
+   * Records a debug entry to configured outputs (file, console, persistence).
+   * Applies filters and formatting based on configuration.
+   *
+   * @private
+   * @param {DebugEntry} entry - The debug entry to record
+   */
   private async recordDebugEntry(entry: DebugEntry): Promise<void> {
     // Apply filters
     const filters = this.config.features.logging.filters;

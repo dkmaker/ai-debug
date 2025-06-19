@@ -2,6 +2,41 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { AIDocGenerator } from '../../docs/generator.js';
 
+/**
+ * CLI command for generating AI-optimized documentation.
+ * Creates documentation tailored for AI assistants.
+ *
+ * @const docsCommand
+ *
+ * Options:
+ * - --format <format>: Documentation format (claude, github, cursor)
+ * - --output <path>: Output file path
+ * - --update: Update existing documentation
+ *
+ * Generates documentation containing:
+ * - Debug patterns and usage examples
+ * - Template documentation
+ * - Coverage analysis
+ * - Best practices specific to the project
+ * - Custom action mappings
+ *
+ * Output paths default to:
+ * - claude: ./CLAUDE.md
+ * - github: ./.github/copilot-guide.md
+ * - cursor: ./.cursorrules
+ *
+ * @example
+ * # Generate Claude-optimized docs
+ * npx ai-debug docs:generate
+ *
+ * @example
+ * # Generate for GitHub Copilot
+ * npx ai-debug docs:generate --format github
+ *
+ * @example
+ * # Update existing documentation
+ * npx ai-debug docs:generate --update
+ */
 export const docsCommand = new Command('docs:generate')
   .description('Generate AI-optimized documentation')
   .option('--format <format>', 'Documentation format (claude|github|cursor)', 'claude')

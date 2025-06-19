@@ -1,5 +1,32 @@
 import type { DocGenOptions, ProjectAnalysis } from '../generator.js';
 
+/**
+ * Documentation template for Cursor AI editor.
+ * Generates .cursorrules file optimized for Cursor's AI assistant.
+ *
+ * @const cursorTemplate
+ *
+ * Features:
+ * - Concise rule-based format
+ * - Direct action items
+ * - Code patterns and examples
+ * - Integration with Cursor features
+ * - Auto-fix suggestions
+ *
+ * Generated sections:
+ * - Debug system rules
+ * - Template selection guide
+ * - Project context and priorities
+ * - Real examples from codebase
+ * - Useful commands reference
+ *
+ * @example
+ * // Used internally by docs:generate command
+ * await generator.generate({
+ *   format: 'cursor',
+ *   output: './.cursorrules'
+ * });
+ */
 export const cursorTemplate = {
   async generate(analysis: ProjectAnalysis, _options: DocGenOptions): Promise<string> {
     const sections = [

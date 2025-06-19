@@ -1,3 +1,36 @@
+/**
+ * @dkmaker/ai-debug - AI-optimized debugging and caching for Node.js
+ *
+ * Main exports for the package.
+ *
+ * @module @dkmaker/ai-debug
+ *
+ * @example
+ * // Basic usage
+ * import { AIDebug } from '@dkmaker/ai-debug';
+ *
+ * const debug = new AIDebug(config);
+ *
+ * // Wrap an operation
+ * const result = await debug.wrap('fetch_data', async () => {
+ *   return await fetchDataFromAPI();
+ * }, { template: 'http' });
+ *
+ * @example
+ * // Custom template
+ * import { AIDebug, TemplateRegistry } from '@dkmaker/ai-debug';
+ *
+ * const registry = new TemplateRegistry();
+ * registry.register('custom', {
+ *   extends: 'base',
+ *   debugData: (context, result) => ({
+ *     customField: context.custom,
+ *     result: result
+ *   })
+ * });
+ */
+
+// Core classes
 export { AIDebug } from './core/debugger.js';
 export { Cache } from './core/cache.js';
 export { FileLogger } from './core/logger.js';

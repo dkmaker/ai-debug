@@ -2,6 +2,27 @@ import { type WriteStream, createWriteStream, existsSync, mkdirSync, statSync } 
 import { dirname } from 'node:path';
 import type { DebugEntry } from '../types/index.js';
 
+/**
+ * Configuration for file-based logging.
+ *
+ * @interface FileLogConfig
+ * @property {boolean} enabled - Whether file logging is enabled
+ * @property {string} path - Path to the log file
+ * @property {string} maxSize - Maximum file size (e.g., '10MB', '1GB')
+ * @property {number} maxFiles - Number of rotated files to keep
+ * @property {'json' | 'pretty'} format - Output format for logs
+ * @property {boolean} compress - Whether to compress rotated files (not implemented)
+ *
+ * @example
+ * const fileConfig: FileLogConfig = {
+ *   enabled: true,
+ *   path: './debug/debug.log',
+ *   maxSize: '10MB',
+ *   maxFiles: 5,
+ *   format: 'json',
+ *   compress: false
+ * };
+ */
 export interface FileLogConfig {
   enabled: boolean;
   path: string;
@@ -11,12 +32,47 @@ export interface FileLogConfig {
   compress: boolean;
 }
 
+/**
+ * Internal queue entry for batched writes.
+ *
+ * @interface LogQueueEntry
+ * @private
+ */
 interface LogQueueEntry {
   entry: DebugEntry;
   resolve: () => void;
   reject: (error: Error) => void;
 }
 
+/**
+ * Singleton file logger with automatic rotation and batched writes.
+ * Prevents file lock conflicts when multiple debug instances write logs.
+ *
+ * @class FileLogger
+ *
+ * Features:
+ * - Automatic file rotation based on size
+ * - Batched writes for performance
+ * - Queue-based write ordering
+ * - Pretty and JSON output formats
+ * - Thread-safe singleton pattern
+ *
+ * Common patterns:
+ * - Always use getInstance() to get the logger
+ * - Logs are written asynchronously
+ * - Files rotate when they reach maxSize
+ * - Old files are numbered (debug.1.log, debug.2.log)
+ *
+ * @example
+ * const logger = FileLogger.getInstance(config);
+ * await logger.log(debugEntry);
+ *
+ * Troubleshooting:
+ * - Check file permissions if logs aren't written
+ * - Ensure directory exists or can be created
+ * - Monitor disk space for large log files
+ * - Use JSON format for programmatic parsing
+ */
 export class FileLogger {
   private static instance: FileLogger;
   private config: FileLogConfig;
@@ -27,6 +83,12 @@ export class FileLogger {
   private currentFileSize = 0;
   private maxSizeBytes: number;
 
+  /**
+   * Private constructor enforces singleton pattern.
+   *
+   * @private
+   * @param {FileLogConfig} config - Logger configuration
+   */
   private constructor(config: FileLogConfig) {
     this.config = config;
     this.maxSizeBytes = this.parseSize(config.maxSize);
@@ -37,6 +99,23 @@ export class FileLogger {
     }
   }
 
+  /**
+   * Gets the singleton FileLogger instance.
+   * Creates a new instance on first call.
+   *
+   * @param {FileLogConfig} config - Configuration (used only on first call)
+   * @returns {FileLogger} The singleton logger instance
+   *
+   * @example
+   * const logger = FileLogger.getInstance({
+   *   enabled: true,
+   *   path: './logs/debug.log',
+   *   maxSize: '50MB',
+   *   maxFiles: 3,
+   *   format: 'json',
+   *   compress: false
+   * });
+   */
   static getInstance(config: FileLogConfig): FileLogger {
     if (!FileLogger.instance) {
       FileLogger.instance = new FileLogger(config);
@@ -44,6 +123,24 @@ export class FileLogger {
     return FileLogger.instance;
   }
 
+  /**
+   * Logs a debug entry to file.
+   * Writes are queued and processed in batches.
+   *
+   * @param {DebugEntry} entry - The debug entry to log
+   * @returns {Promise<void>} Resolves when entry is written
+   *
+   * @example
+   * await logger.log({
+   *   id: '123',
+   *   action: 'api_call',
+   *   key: 'users',
+   *   timestamp: new Date().toISOString(),
+   *   duration_ms: 150,
+   *   status: 'success',
+   *   data: { count: 42 }
+   * });
+   */
   async log(entry: DebugEntry): Promise<void> {
     if (!this.config.enabled) return;
 
@@ -53,6 +150,12 @@ export class FileLogger {
     });
   }
 
+  /**
+   * Processes the write queue in batches.
+   * Prevents concurrent writes and handles errors.
+   *
+   * @private
+   */
   private async processQueue(): Promise<void> {
     if (this.isWriting || this.writeQueue.length === 0) return;
 
@@ -85,6 +188,13 @@ export class FileLogger {
     }
   }
 
+  /**
+   * Writes data to the current log file.
+   * Handles rotation when file size limit is reached.
+   *
+   * @private
+   * @param {string} data - Formatted log data to write
+   */
   private async writeToFile(data: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.fileStream) {
@@ -110,6 +220,12 @@ export class FileLogger {
     });
   }
 
+  /**
+   * Rotates log files when size limit is reached.
+   * Maintains a circular buffer of log files.
+   *
+   * @private
+   */
   private rotateFile(): void {
     if (this.fileStream) {
       this.fileStream.end();
@@ -122,6 +238,12 @@ export class FileLogger {
     this.openFileStream();
   }
 
+  /**
+   * Opens a write stream to the current log file.
+   * Appends to existing file if present.
+   *
+   * @private
+   */
   private openFileStream(): void {
     const filePath = this.getFilePath();
 
@@ -138,6 +260,12 @@ export class FileLogger {
     this.fileStream = createWriteStream(filePath, { flags: 'a' });
   }
 
+  /**
+   * Generates the file path for the current log file.
+   *
+   * @private
+   * @returns {string} Full path to the log file
+   */
   private getFilePath(): string {
     const base = this.config.path.replace(/\.log$/, '');
     if (this.currentFileIndex === 0) {
@@ -146,6 +274,12 @@ export class FileLogger {
     return `${base}.${this.currentFileIndex}.log`;
   }
 
+  /**
+   * Ensures the log directory exists.
+   * Creates it recursively if needed.
+   *
+   * @private
+   */
   private ensureDirectoryExists(): void {
     const dir = dirname(this.config.path);
     if (!existsSync(dir)) {
@@ -153,6 +287,17 @@ export class FileLogger {
     }
   }
 
+  /**
+   * Parses human-readable size strings to bytes.
+   *
+   * @private
+   * @param {string} size - Size string (e.g., '10MB', '1GB')
+   * @returns {number} Size in bytes
+   *
+   * @example
+   * parseSize('10MB') // returns 10485760
+   * parseSize('1GB')  // returns 1073741824
+   */
   private parseSize(size: string): number {
     const match = size.match(/^(\d+)([KMG]B)?$/i);
     if (!match) return 100 * 1024 * 1024; // Default 100MB
@@ -172,6 +317,16 @@ export class FileLogger {
     }
   }
 
+  /**
+   * Formats a debug entry in human-readable format.
+   *
+   * @private
+   * @param {DebugEntry} entry - Entry to format
+   * @returns {string} Formatted log line
+   *
+   * @example
+   * // Output: "[2024-01-01 12:00:00] ✓ fetch_users - 150ms (cached)"
+   */
   private formatPretty(entry: DebugEntry): string {
     const timestamp = new Date(entry.timestamp).toLocaleString();
     const status = entry.status === 'success' ? '✓' : '✗';
@@ -180,6 +335,13 @@ export class FileLogger {
     return `[${timestamp}] ${status} ${entry.action} - ${entry.duration_ms}ms${cached}`;
   }
 
+  /**
+   * Closes the logger and flushes pending writes.
+   * Call this before application shutdown.
+   *
+   * @example
+   * logger.close();
+   */
   close(): void {
     if (this.fileStream) {
       this.fileStream.end();

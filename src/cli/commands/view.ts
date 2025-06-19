@@ -4,6 +4,40 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import type { DebugEntry } from '../../types/index.js';
 
+/**
+ * CLI command for viewing debug entries by action.
+ * Shows detailed information about specific operations.
+ *
+ * @const viewCommand
+ *
+ * Arguments:
+ * - <action>: Action name or pattern (supports wildcards)
+ *
+ * Options:
+ * - -l, --limit <number>: Limit number of entries (default: 10)
+ * - --json: Output as JSON
+ * - --full: Show full debug data
+ *
+ * Displays:
+ * - Operation details and timing
+ * - Success/failure status
+ * - Cache hit information
+ * - Error messages
+ * - Debug data (preview or full)
+ * - Summary statistics
+ *
+ * @example
+ * # View recent fetch_user operations
+ * npx ai-debug view fetch_user
+ *
+ * @example
+ * # View all user operations with wildcards
+ * npx ai-debug view "*_user"
+ *
+ * @example
+ * # Show full data for operations
+ * npx ai-debug view api_call --full --limit 5
+ */
 export const viewCommand = new Command('view')
   .description('View debug entries for a specific action')
   .argument('<action>', 'Action name to view')

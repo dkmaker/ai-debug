@@ -9,8 +9,11 @@ AI-optimized debugging and caching system for Node.js applications with minimal 
 - 🧬 **Template Inheritance**: Extend and customize built-in templates
 - 💾 **Smart Caching**: LRU/FIFO strategies with configurable TTL
 - 📝 **Integrated Logging**: Singleton file logger prevents conflicts
-- 🤖 **AI Documentation**: Auto-generate CLAUDE.md for AI assistants
-- 🔍 **Raw Object Debugging**: Automatic inspection of unknown objects
+- 🤖 **AI Documentation**: Generate docs for Claude, GitHub Copilot, or Cursor
+- 🔍 **Code Analysis**: AST-based analysis finds patterns and suggests improvements
+- 📊 **Coverage Reports**: Track debug coverage across your codebase
+- 🔄 **Watch Mode**: Auto-update documentation as code changes
+- 📦 **Modern Build**: Fast tsup builds with dual ESM/CJS support
 
 ## Installation
 
@@ -74,6 +77,25 @@ await debug.raw('unknown_operation', async () => {
 
 Debug code is automatically removed in production builds using the `/*DEBUG:START*/` and `/*DEBUG:END*/` markers.
 
+## Custom Templates
+
+Create your own templates by extending the base template:
+
+```javascript
+// .ai-debug/templates/myTemplate.js
+import { BaseTemplate } from '@dkmaker/ai-debug';
+
+export const myTemplate = BaseTemplate.extend({
+  name: 'myTemplate',
+  captureContext: (args) => ({
+    // Custom context extraction
+  }),
+  formatOutput: (result, error, context) => ({
+    // Custom output formatting
+  })
+});
+```
+
 ## Configuration
 
 The `.ai-debug/config.json` file controls all features:
@@ -102,14 +124,28 @@ The `.ai-debug/config.json` file controls all features:
 # Initialize or upgrade
 npx ai-debug init --guided
 
-# Generate AI documentation
-npx ai-debug docs:generate
-
-# View debug data
-npx ai-debug view <action>
+# Generate AI documentation (Claude, GitHub Copilot, or Cursor format)
+npx ai-debug docs:generate --format claude --output .ai-debug/CLAUDE.md
 
 # Analyze usage patterns
 npx ai-debug analyze
+
+# Check debug coverage
+npx ai-debug coverage
+
+# View statistics
+npx ai-debug stats
+
+# Get optimization suggestions
+npx ai-debug suggest
+
+# View and search debug data
+npx ai-debug list                    # List all debug entries
+npx ai-debug view <action>          # View specific action details
+npx ai-debug search <pattern>       # Search debug logs
+
+# Watch mode for auto-updates
+npx ai-debug watch
 ```
 
 ## License

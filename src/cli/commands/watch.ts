@@ -6,10 +6,48 @@ import { ProjectAnalyzer } from '../../docs/analyzer.js';
 import { AIDocGenerator } from '../../docs/generator.js';
 import type { ProjectAnalysis } from '../../docs/generator.js';
 
+/**
+ * Watch analysis data without suggestions.
+ * @private
+ */
 interface WatchAnalysis extends Omit<ProjectAnalysis, 'suggestions'> {
   suggestions?: ProjectAnalysis['suggestions'];
 }
 
+/**
+ * CLI command for watching code changes and auto-updating docs.
+ * Monitors source files and regenerates documentation when needed.
+ *
+ * @const watchCommand
+ *
+ * Options:
+ * - --auto-doc: Automatically update documentation on significant changes
+ * - --interval <ms>: Minimum interval between updates (default: 60000)
+ * - --threshold <number>: File change threshold to trigger update (default: 5)
+ *
+ * Monitors:
+ * - Source file changes (js, jsx, ts, tsx)
+ * - Debug call additions/removals
+ * - Coverage changes
+ * - Pattern changes
+ *
+ * Auto-updates when:
+ * - Coverage changes by >5%
+ * - Debug calls change by >10
+ * - New patterns are detected
+ *
+ * @example
+ * # Watch mode with manual documentation updates
+ * npx ai-debug watch
+ *
+ * @example
+ * # Auto-update documentation on changes
+ * npx ai-debug watch --auto-doc
+ *
+ * @example
+ * # Frequent updates with low threshold
+ * npx ai-debug watch --auto-doc --interval 30000 --threshold 3
+ */
 export const watchCommand = new Command('watch')
   .description('Watch for changes and auto-update documentation')
   .option('--auto-doc', 'Automatically update documentation on significant changes')

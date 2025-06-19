@@ -2,11 +2,73 @@ import { createHash } from 'node:crypto';
 import type { BusinessError } from '../types/errors.js';
 import type { Template } from '../types/index.js';
 
+/**
+ * Creates a short hash of data for cache keys.
+ *
+ * @param {unknown} data - Data to hash
+ * @returns {string} 8-character hash
+ * @private
+ */
 function hash(data: unknown): string {
   const str = JSON.stringify(data);
   return createHash('sha256').update(str).digest('hex').slice(0, 8);
 }
 
+/**
+ * Template for business logic and domain operations.
+ * Captures business context, entities, and validation errors.
+ *
+ * @const businessTemplate
+ *
+ * Expected context:
+ * - operation: Business operation name (e.g., 'create', 'update', 'process')
+ * - entity: Business entity being operated on (e.g., 'order', 'user', 'payment')
+ * - input: Input data for the operation
+ * - metadata: Additional business context
+ *
+ * Captured data:
+ * - Business operation and entity names
+ * - Input parameters
+ * - Operation results or validation errors
+ * - Business metadata
+ *
+ * Error handling:
+ * - Captures validation errors from BusinessError types
+ * - Preserves business context for troubleshooting
+ *
+ * Cache behavior:
+ * - 15 minute TTL by default
+ * - Cache key includes operation, entity, and input hash
+ * - Only caches successful operations (no errors)
+ *
+ * @example
+ * await debug.wrap('process_order',
+ *   () => orderService.process(orderData),
+ *   {
+ *     template: 'business',
+ *     context: {
+ *       operation: 'process',
+ *       entity: 'order',
+ *       input: orderData,
+ *       metadata: { userId: currentUser.id }
+ *     }
+ *   }
+ * );
+ *
+ * @example
+ * // With validation error handling
+ * await debug.wrap('validate_payment',
+ *   () => paymentValidator.validate(paymentData),
+ *   {
+ *     template: 'business',
+ *     context: {
+ *       operation: 'validate',
+ *       entity: 'payment',
+ *       input: paymentData
+ *     }
+ *   }
+ * );
+ */
 export const businessTemplate: Template = {
   extends: 'base',
   debugData: (context, result, error) => ({

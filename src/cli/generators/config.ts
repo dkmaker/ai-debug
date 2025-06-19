@@ -1,5 +1,9 @@
 import type { Config } from '../../types/index.js';
 
+/**
+ * Answers from interactive configuration prompts.
+ * @private
+ */
 interface ConfigAnswers {
   enableCache?: boolean;
   cacheStrategy?: 'lru' | 'fifo';
@@ -10,6 +14,29 @@ interface ConfigAnswers {
   generateDocs?: boolean;
 }
 
+/**
+ * Generates a complete configuration object from user answers.
+ * Provides sensible defaults for all required settings.
+ *
+ * @param {ConfigAnswers} answers - User answers from prompts
+ * @returns {Config} Complete configuration object
+ *
+ * @example
+ * const config = generateConfig({
+ *   enableCache: true,
+ *   cacheStrategy: 'lru',
+ *   enableFileLogging: true,
+ *   logPath: './logs/debug.log',
+ *   defaultTemplate: 'http'
+ * });
+ *
+ * Default behaviors:
+ * - Cache enabled with LRU strategy
+ * - File logging to ./debug/debug.log
+ * - Console logging disabled
+ * - 'base' template as default
+ * - Documentation generation enabled
+ */
 export function generateConfig(answers: ConfigAnswers): Config {
   return {
     version: '1.0.0',

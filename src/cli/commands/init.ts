@@ -7,6 +7,35 @@ import type { Config } from '../../types/index.js';
 import { generateConfig } from '../generators/config.js';
 import { generateWrapper } from '../generators/wrapper.js';
 
+/**
+ * CLI command for initializing AI Debug in a project.
+ * Creates configuration files and directory structure.
+ *
+ * @const initCommand
+ *
+ * Options:
+ * - --guided: Interactive setup with prompts
+ * - --upgrade: Update existing configuration
+ * - --force: Overwrite existing files
+ *
+ * Creates:
+ * - .ai-debug/config.json: Main configuration file
+ * - .ai-debug/wrapper.js: Minimal wrapper for imports
+ * - .ai-debug/templates/: Directory for custom templates
+ * - Updates .gitignore with debug patterns
+ *
+ * @example
+ * # Basic initialization with defaults
+ * npx ai-debug init
+ *
+ * @example
+ * # Interactive guided setup
+ * npx ai-debug init --guided
+ *
+ * @example
+ * # Force overwrite existing setup
+ * npx ai-debug init --force
+ */
 export const initCommand = new Command('init')
   .description('Initialize AI Debug in your project')
   .option('--guided', 'Run interactive setup')
@@ -124,6 +153,13 @@ export const initCommand = new Command('init')
     }
   });
 
+/**
+ * Updates or creates .gitignore with debug patterns.
+ * Ensures debug logs aren't committed to version control.
+ *
+ * @param {string} projectRoot - Project root directory path
+ * @private
+ */
 function updateGitignore(projectRoot: string) {
   const gitignorePath = join(projectRoot, '.gitignore');
   const debugPatterns = ['debug/', '*.log'];

@@ -4,6 +4,37 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import type { DebugEntry } from '../../types/index.js';
 
+/**
+ * CLI command for searching debug logs.
+ * Find specific operations or patterns in debug history.
+ *
+ * @const searchCommand
+ *
+ * Arguments:
+ * - <pattern>: Search pattern (supports regex)
+ *
+ * Options:
+ * - -f, --field <field>: Search in specific field (action/error/data/all)
+ * - -l, --limit <number>: Limit results (default: 20)
+ * - --case-sensitive: Enable case-sensitive search
+ *
+ * Searches in:
+ * - Action names
+ * - Error messages
+ * - Debug data (recursively)
+ *
+ * @example
+ * # Search for user-related operations
+ * npx ai-debug search user
+ *
+ * @example
+ * # Search only in error messages
+ * npx ai-debug search "connection refused" --field error
+ *
+ * @example
+ * # Case-sensitive regex search
+ * npx ai-debug search "^POST.*api" --case-sensitive
+ */
 export const searchCommand = new Command('search')
   .description('Search debug data')
   .argument('<pattern>', 'Search pattern (regex supported)')

@@ -2,6 +2,35 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { ProjectAnalyzer } from '../../docs/analyzer.js';
 
+/**
+ * CLI command for debug coverage analysis.
+ * Shows how much of your async code is being debugged.
+ *
+ * @const coverageCommand
+ *
+ * Options:
+ * - --json: Output as JSON
+ * - --threshold <number>: Coverage threshold percentage (default: 80)
+ *
+ * Displays:
+ * - Overall coverage percentage
+ * - File-by-file coverage breakdown
+ * - Template distribution
+ * - List of unwrapped operations
+ * - Files needing attention vs well-covered files
+ *
+ * @example
+ * # Show debug coverage report
+ * npx ai-debug coverage
+ *
+ * @example
+ * # Check coverage with custom threshold
+ * npx ai-debug coverage --threshold 90
+ *
+ * @example
+ * # Export coverage data as JSON
+ * npx ai-debug coverage --json > coverage.json
+ */
 export const coverageCommand = new Command('coverage')
   .description('Show debug coverage analysis')
   .option('--json', 'Output as JSON')

@@ -4,6 +4,38 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import type { DebugEntry } from '../../types/index.js';
 
+/**
+ * CLI command for listing debug entries.
+ * Displays recent debug operations with filtering and sorting.
+ *
+ * @const listCommand
+ *
+ * Options:
+ * - -l, --limit <number>: Limit number of entries (default: 50)
+ * - -t, --template <template>: Filter by template name
+ * - -s, --status <status>: Filter by status (success/failure)
+ * - --sort <field>: Sort by field (timestamp/duration/action)
+ *
+ * Displays:
+ * - Operation name and template
+ * - Success/failure status
+ * - Execution time
+ * - Cache hit indicator
+ * - Error messages if failed
+ * - Summary statistics
+ *
+ * @example
+ * # List recent 50 entries
+ * npx ai-debug list
+ *
+ * @example
+ * # Show only failures
+ * npx ai-debug list --status failure
+ *
+ * @example
+ * # Show slowest operations
+ * npx ai-debug list --sort duration --limit 10
+ */
 export const listCommand = new Command('list')
   .description('List all debug entries')
   .option('-l, --limit <number>', 'Limit number of entries', '50')

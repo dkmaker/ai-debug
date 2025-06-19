@@ -8,12 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@babel/parser':
-        specifier: ^7.27.5
-        version: 7.27.5
-      '@babel/traverse':
-        specifier: ^7.27.4
-        version: 7.27.4
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -30,6 +24,15 @@ importers:
         specifier: ^3.25.67
         version: 3.25.67
     devDependencies:
+      '@babel/parser':
+        specifier: ^7.27.5
+        version: 7.27.5
+      '@babel/traverse':
+        specifier: ^7.27.4
+        version: 7.27.4
+      '@babel/types':
+        specifier: ^7.27.6
+        version: 7.27.6
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4

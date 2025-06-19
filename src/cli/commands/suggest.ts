@@ -3,6 +3,31 @@ import { Command } from 'commander';
 import { ProjectAnalyzer } from '../../docs/analyzer.js';
 import type { Suggestion } from '../../docs/generator.js';
 
+/**
+ * CLI command for suggesting debug improvements.
+ * Analyzes codebase and provides actionable recommendations.
+ *
+ * @const suggestCommand
+ *
+ * Options:
+ * - --limit <number>: Maximum suggestions to show (default: 20)
+ * - --priority <level>: Filter by priority (high/medium/low)
+ * - --json: Output as JSON
+ *
+ * Provides:
+ * - Unwrapped async operations to debug
+ * - Template recommendations
+ * - Code examples for implementation
+ * - Priority-based organization
+ *
+ * @example
+ * # Show all suggestions
+ * npx ai-debug suggest
+ *
+ * @example
+ * # Show only high priority suggestions
+ * npx ai-debug suggest --priority high --limit 10
+ */
 export const suggestCommand = new Command('suggest')
   .description('Suggest debug optimizations')
   .option('--limit <number>', 'Limit number of suggestions', '20')

@@ -1,4 +1,30 @@
 #!/usr/bin/env node
+/**
+ * CLI entry point for @dkmaker/ai-debug.
+ * Provides commands for initialization, documentation, and analysis.
+ *
+ * Available commands:
+ * - init: Initialize ai-debug in a project
+ * - docs:generate: Generate AI-optimized documentation
+ * - analyze: Analyze debug patterns in codebase
+ * - view: View debug logs
+ * - list: List debug entries
+ * - search: Search debug logs
+ * - stats: Show debug statistics
+ * - coverage: Analyze debug coverage
+ * - suggest: Suggest debug improvements
+ * - watch: Watch debug logs in real-time
+ *
+ * @example
+ * # Initialize in a project
+ * npx ai-debug init --guided
+ *
+ * # Generate documentation
+ * npx ai-debug docs:generate
+ *
+ * # View debug statistics
+ * npx ai-debug stats
+ */
 import { Command } from 'commander';
 import { analyzeCommand } from './commands/analyze.js';
 import { coverageCommand } from './commands/coverage.js';

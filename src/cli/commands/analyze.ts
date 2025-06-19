@@ -2,6 +2,35 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { ProjectAnalyzer } from '../../docs/analyzer.js';
 
+/**
+ * CLI command for analyzing codebase debug patterns.
+ * Identifies opportunities for better debugging.
+ *
+ * @const analyzeCommand
+ *
+ * Options:
+ * - --json: Output analysis results as JSON
+ *
+ * Analyzes:
+ * - Debug call patterns and distribution
+ * - Template usage statistics
+ * - Coverage of async operations
+ * - Common action prefixes
+ * - Anti-patterns and optimization opportunities
+ *
+ * Provides recommendations based on:
+ * - Coverage percentage
+ * - Template diversity
+ * - Pattern detection
+ *
+ * @example
+ * # Run analysis with formatted output
+ * npx ai-debug analyze
+ *
+ * @example
+ * # Export analysis as JSON
+ * npx ai-debug analyze --json > analysis.json
+ */
 export const analyzeCommand = new Command('analyze')
   .description('Analyze debug usage patterns')
   .option('--json', 'Output as JSON')

@@ -19,6 +19,22 @@ import type {
   TemplateUsage,
 } from './generator.js';
 
+/**
+ * Analyzes project code to find debug calls, patterns, and generate suggestions.
+ *
+ * This class provides comprehensive analysis of AI Debug usage in a project,
+ * including finding debug calls, identifying patterns, and suggesting improvements.
+ * It uses Babel to parse JavaScript/TypeScript files and extract debug-related
+ * information for documentation and optimization.
+ *
+ * @example
+ * ```typescript
+ * const analyzer = new ProjectAnalyzer('/path/to/project');
+ * const debugCalls = await analyzer.findDebugCalls();
+ * const patterns = await analyzer.identifyPatterns(debugCalls);
+ * const suggestions = await analyzer.generateSuggestions();
+ * ```
+ */
 export class ProjectAnalyzer {
   private projectRoot: string;
   private sourcePatterns = [
@@ -32,6 +48,25 @@ export class ProjectAnalyzer {
     this.projectRoot = projectRoot;
   }
 
+  /**
+   * Finds all debug.wrap() and debug.raw() calls in the project.
+   *
+   * Scans all JavaScript/TypeScript files in the project (excluding node_modules,
+   * dist, and .ai-debug directories) to find debug calls. Extracts information
+   * about each call including the action name, template used, and location.
+   *
+   * @returns {Promise<DebugCall[]>} Array of debug calls found in the project
+   *
+   * @example
+   * ```typescript
+   * const analyzer = new ProjectAnalyzer();
+   * const calls = await analyzer.findDebugCalls();
+   * console.log(`Found ${calls.length} debug calls`);
+   * calls.forEach(call => {
+   *   console.log(`${call.file}:${call.line} - ${call.action}`);
+   * });
+   * ```
+   */
   async findDebugCalls(): Promise<DebugCall[]> {
     const debugCalls: DebugCall[] = [];
     const files = await glob(this.sourcePatterns, { cwd: this.projectRoot });
@@ -61,6 +96,14 @@ export class ProjectAnalyzer {
       });
 
       traverse(ast, {
+        /**
+         * Visits CallExpression nodes in the AST to find debug calls.
+         *
+         * Looks for patterns like debug.wrap() and debug.raw() and extracts
+         * the action name and options (including template) from the arguments.
+         *
+         * @param path - Babel AST path containing the CallExpression node
+         */
         // biome-ignore lint/suspicious/noExplicitAny: Babel AST types are dynamic
         CallExpression(path: any) {
           const { node } = path;

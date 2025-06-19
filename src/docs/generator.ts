@@ -6,6 +6,12 @@ import { claudeTemplate } from './templates/claude.js';
 import { cursorTemplate } from './templates/cursor.js';
 import { githubTemplate } from './templates/github.js';
 
+/**
+ * Options for AI documentation generation.
+ *
+ * Configures how the documentation should be generated, including
+ * the target AI assistant format and output location.
+ */
 export interface DocGenOptions {
   format: 'claude' | 'github' | 'cursor';
   output: string;
@@ -13,6 +19,12 @@ export interface DocGenOptions {
   config?: Config;
 }
 
+/**
+ * Complete analysis results for a project's debug usage.
+ *
+ * Contains all analyzed data including debug calls, patterns,
+ * suggestions, coverage reports, and template usage statistics.
+ */
 export interface ProjectAnalysis {
   debugCalls: DebugCall[];
   patterns: Pattern[];
@@ -21,6 +33,12 @@ export interface ProjectAnalysis {
   templates: TemplateUsage[];
 }
 
+/**
+ * Represents a single debug.wrap() or debug.raw() call in the code.
+ *
+ * Contains location information and metadata about the debug call,
+ * including the action name and template used.
+ */
 export interface DebugCall {
   file: string;
   line: number;
@@ -29,6 +47,13 @@ export interface DebugCall {
   context?: Record<string, unknown>;
 }
 
+/**
+ * Represents a usage pattern identified in the project.
+ *
+ * Can be either a common pattern (good practice) or an antipattern
+ * (practice that should be improved). Includes occurrence statistics
+ * and affected files.
+ */
 export interface Pattern {
   type: 'common' | 'antipattern';
   name: string;
@@ -38,6 +63,13 @@ export interface Pattern {
   example?: string;
 }
 
+/**
+ * Improvement suggestion for better debug coverage.
+ *
+ * Identifies locations where debug wrapping could be beneficial,
+ * particularly for async operations that aren't currently tracked.
+ * Includes priority level to help focus on the most important improvements.
+ */
 export interface Suggestion {
   file: string;
   line: number;
@@ -47,6 +79,12 @@ export interface Suggestion {
   priority: 'high' | 'medium' | 'low';
 }
 
+/**
+ * Comprehensive coverage report for debug usage.
+ *
+ * Shows overall coverage percentage and breakdowns by file and template.
+ * Includes statistics about wrapped vs unwrapped async operations.
+ */
 export interface CoverageReport {
   overall: number;
   byFile: FileCoverage[];
@@ -58,6 +96,12 @@ export interface CoverageReport {
   };
 }
 
+/**
+ * Coverage statistics for a single file.
+ *
+ * Shows the ratio of debug calls to async operations in the file,
+ * helping identify files that need better debug coverage.
+ */
 export interface FileCoverage {
   file: string;
   coverage: number;
@@ -65,12 +109,24 @@ export interface FileCoverage {
   asyncCalls: number;
 }
 
+/**
+ * Usage statistics for a specific debug template.
+ *
+ * Shows how often each template is used across the project,
+ * helping identify which templates are most valuable.
+ */
 export interface TemplateCoverage {
   template: string;
   count: number;
   percentage: number;
 }
 
+/**
+ * Detailed usage information for a debug template.
+ *
+ * Includes whether the template is built-in or custom, usage count,
+ * and examples of where it's used in the codebase.
+ */
 export interface TemplateUsage {
   name: string;
   type: 'builtin' | 'custom';
@@ -84,6 +140,24 @@ const TEMPLATE_MAP = {
   cursor: cursorTemplate,
 };
 
+/**
+ * Generates AI-optimized documentation for different AI assistants.
+ *
+ * This class analyzes a project's debug usage and generates documentation
+ * tailored for specific AI assistants like Claude, GitHub Copilot, or Cursor.
+ * It performs comprehensive analysis including finding debug calls, identifying
+ * patterns, and generating improvement suggestions.
+ *
+ * @example
+ * ```typescript
+ * const generator = new AIDocGenerator();
+ * await generator.generate({
+ *   format: 'claude',
+ *   output: '.ai-debug/claude.md',
+ *   update: false
+ * });
+ * ```
+ */
 export class AIDocGenerator {
   private analyzer: ProjectAnalyzer;
 
@@ -91,6 +165,38 @@ export class AIDocGenerator {
     this.analyzer = new ProjectAnalyzer();
   }
 
+  /**
+   * Generates AI documentation based on project analysis.
+   *
+   * Performs a comprehensive analysis of the project's debug usage and generates
+   * documentation in the specified format. The documentation includes debug patterns,
+   * coverage reports, and suggestions for improvements. Can either create a new
+   * file or update an existing one.
+   *
+   * @param {DocGenOptions} options - Configuration for documentation generation
+   * @param {string} options.format - Target AI assistant format ('claude', 'github', or 'cursor')
+   * @param {string} options.output - Output file path for the generated documentation
+   * @param {boolean} [options.update] - Whether to update existing documentation
+   * @param {Config} [options.config] - AI Debug configuration object
+   *
+   * @throws {Error} If the specified format is not supported
+   *
+   * @example
+   * ```typescript
+   * // Generate Claude documentation
+   * await generator.generate({
+   *   format: 'claude',
+   *   output: '.ai-debug/CLAUDE.md'
+   * });
+   *
+   * // Update existing documentation
+   * await generator.generate({
+   *   format: 'github',
+   *   output: '.github/copilot-docs.md',
+   *   update: true
+   * });
+   * ```
+   */
   async generate(options: DocGenOptions): Promise<void> {
     console.log(`📚 Generating ${options.format.toUpperCase()} documentation...`);
 

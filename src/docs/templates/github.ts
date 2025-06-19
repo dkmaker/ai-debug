@@ -1,5 +1,36 @@
 import type { DocGenOptions, ProjectAnalysis } from '../generator.js';
 
+/**
+ * Documentation template for GitHub Copilot.
+ * Generates copilot-guide.md optimized for GitHub's AI assistant.
+ *
+ * @const githubTemplate
+ *
+ * Features:
+ * - GitHub-flavored markdown
+ * - Copilot-specific code snippets
+ * - Integration with GitHub features
+ * - Repository metrics and insights
+ *
+ * Generated sections:
+ * - Quick start guide
+ * - Template reference with examples
+ * - Code snippets for common patterns
+ * - Best practices and conventions
+ * - Project metrics and coverage
+ *
+ * Includes snippet templates for:
+ * - General async operations
+ * - HTTP API calls
+ * - Database queries
+ *
+ * @example
+ * // Used internally by docs:generate command
+ * await generator.generate({
+ *   format: 'github',
+ *   output: './.github/copilot-guide.md'
+ * });
+ */
 export const githubTemplate = {
   async generate(analysis: ProjectAnalysis, _options: DocGenOptions): Promise<string> {
     const sections = [

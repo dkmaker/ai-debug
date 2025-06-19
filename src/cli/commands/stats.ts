@@ -4,6 +4,10 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import type { DebugEntry } from '../../types/index.js';
 
+/**
+ * Statistical data collected from debug logs.
+ * @private
+ */
 interface Stats {
   totalEntries: number;
   successCount: number;
@@ -21,6 +25,33 @@ interface Stats {
   totalSize: number;
 }
 
+/**
+ * CLI command for displaying debug statistics.
+ * Analyzes debug logs and provides insights.
+ *
+ * @const statsCommand
+ *
+ * Options:
+ * - --json: Output statistics as JSON
+ *
+ * Displays:
+ * - Total operations tracked
+ * - Success/failure rates
+ * - Performance metrics (avg, min, max duration)
+ * - Cache hit rates
+ * - Most frequent operations
+ * - Template usage distribution
+ * - Error patterns
+ * - Hourly activity heatmap
+ *
+ * @example
+ * # Show formatted statistics
+ * npx ai-debug stats
+ *
+ * @example
+ * # Export stats as JSON
+ * npx ai-debug stats --json > stats.json
+ */
 export const statsCommand = new Command('stats')
   .description('Show debug statistics')
   .option('--json', 'Output as JSON')
@@ -117,6 +148,13 @@ export const statsCommand = new Command('stats')
     }
   });
 
+/**
+ * Processes a single debug entry and updates statistics.
+ *
+ * @param {DebugEntry} entry - Debug log entry to process
+ * @param {Stats} stats - Statistics object to update
+ * @private
+ */
 function processEntry(entry: DebugEntry, stats: Stats): void {
   stats.totalEntries++;
 
@@ -155,6 +193,13 @@ function processEntry(entry: DebugEntry, stats: Stats): void {
   stats.hourlyDistribution.set(hour, (stats.hourlyDistribution.get(hour) || 0) + 1);
 }
 
+/**
+ * Displays formatted statistics in the console.
+ * Includes color coding and visual elements.
+ *
+ * @param {Stats} stats - Collected statistics to display
+ * @private
+ */
 function displayStats(stats: Stats): void {
   console.log(chalk.blue('📊 Debug Statistics\n'));
 
@@ -225,12 +270,26 @@ function displayStats(stats: Stats): void {
   }
 }
 
+/**
+ * Formats byte count into human-readable string.
+ *
+ * @param {number} bytes - Number of bytes
+ * @returns {string} Formatted string (e.g., '1.5 MB')
+ * @private
+ */
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+/**
+ * Formats milliseconds into human-readable duration.
+ *
+ * @param {number} ms - Duration in milliseconds
+ * @returns {string} Formatted string (e.g., '1.5m', '2.3h')
+ * @private
+ */
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;

@@ -1,6 +1,13 @@
 import { inspect } from 'node:util';
 import type { Template } from '../types/index.js';
 
+/**
+ * Creates a replacer function that handles circular references.
+ * Used when stringifying objects for size calculation.
+ *
+ * @returns {Function} Replacer function for JSON.stringify
+ * @private
+ */
 function createCircularReplacer() {
   const seen = new WeakSet();
   return (_key: string, value: unknown) => {
@@ -14,6 +21,14 @@ function createCircularReplacer() {
   };
 }
 
+/**
+ * Calculates the approximate size of an object in bytes.
+ * Handles circular references gracefully.
+ *
+ * @param {unknown} obj - Object to measure
+ * @returns {number} Size in bytes, or -1 if unable to calculate
+ * @private
+ */
 function calculateObjectSize(obj: unknown): number {
   if (!obj) return 0;
 
@@ -24,6 +39,16 @@ function calculateObjectSize(obj: unknown): number {
   }
 }
 
+/**
+ * Recursively analyzes the structure of an object.
+ * Provides a summary of types, array lengths, and object keys.
+ *
+ * @param {unknown} obj - Object to analyze
+ * @param {number} maxDepth - Maximum recursion depth (default: 3)
+ * @param {number} currentDepth - Current recursion depth
+ * @returns {unknown} Structure summary object
+ * @private
+ */
 function analyzeStructure(obj: unknown, maxDepth = 3, currentDepth = 0): unknown {
   if (!obj || currentDepth >= maxDepth) return typeof obj;
 
@@ -59,6 +84,14 @@ function analyzeStructure(obj: unknown, maxDepth = 3, currentDepth = 0): unknown
   return typeof obj;
 }
 
+/**
+ * Analyzes a result object and suggests the most appropriate template.
+ * Uses heuristics based on common property names and patterns.
+ *
+ * @param {unknown} result - Result object to analyze
+ * @returns {string} Suggested template name
+ * @private
+ */
 function suggestBestTemplate(result: unknown): string {
   if (!result || typeof result !== 'object') return 'base';
 
@@ -88,6 +121,14 @@ function suggestBestTemplate(result: unknown): string {
   return 'business';
 }
 
+/**
+ * Identifies potentially important fields in an object.
+ * Uses pattern matching to find common important field names.
+ *
+ * @param {unknown} obj - Object to analyze
+ * @returns {string[]} Array of important field names
+ * @private
+ */
 function identifyImportantFields(obj: unknown): string[] {
   if (!obj || typeof obj !== 'object') return [];
 
@@ -110,6 +151,53 @@ function identifyImportantFields(obj: unknown): string[] {
   return important;
 }
 
+/**
+ * Automatic object inspection template.
+ * Analyzes unknown objects and suggests appropriate templates.
+ *
+ * @const autoTemplate
+ *
+ * This template is used when:
+ * - No specific template is specified
+ * - You need to inspect complex objects
+ * - You're debugging unknown data structures
+ *
+ * Features:
+ * - Deep object inspection with circular reference handling
+ * - Structure analysis with type information
+ * - Automatic template suggestion based on object shape
+ * - Identification of important fields
+ * - Size calculation for performance monitoring
+ *
+ * Captured data:
+ * - Object type, constructor, and key count
+ * - Sample inspection output with controlled depth
+ * - Object size in bytes
+ * - Recursive structure analysis
+ * - Template suggestions for future use
+ * - Important field identification
+ *
+ * Cache behavior:
+ * - Disabled by default (raw inspection shouldn't be cached)
+ *
+ * @example
+ * // Inspect an unknown API response
+ * const result = await debug.wrap('mystery_api',
+ *   () => fetchSomeData(),
+ *   { template: 'auto' }
+ * );
+ *
+ * @example
+ * // Use raw mode for detailed debugging
+ * const data = await debug.raw('complex_operation', () => {
+ *   return performComplexCalculation();
+ * });
+ *
+ * Troubleshooting:
+ * - Large objects may be truncated in the sample
+ * - Circular references are marked as [Circular]
+ * - Template suggestions are heuristic-based
+ */
 export const autoTemplate: Template = {
   extends: 'base',
   debugData: (_context, result, _error, baseData) => {

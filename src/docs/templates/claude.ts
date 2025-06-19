@@ -1,5 +1,39 @@
 import type { DocGenOptions, ProjectAnalysis } from '../generator.js';
 
+/**
+ * Documentation template for Claude AI assistant.
+ * Generates CLAUDE.md file optimized for Claude's understanding.
+ *
+ * @const claudeTemplate
+ *
+ * Features:
+ * - Structured markdown format
+ * - Clear section organization
+ * - Comprehensive examples
+ * - Debug pattern documentation
+ * - Template usage guides
+ * - Project-specific patterns
+ *
+ * Generated sections:
+ * - Project overview and stats
+ * - Available debug commands
+ * - Template documentation
+ * - Usage patterns detected
+ * - Optimization suggestions
+ * - Coverage report
+ * - Guidelines and best practices
+ * - Performance considerations
+ *
+ * The template uses AI-DEBUG-START/END markers
+ * to delineate AI-specific content.
+ *
+ * @example
+ * // Used internally by docs:generate command
+ * await generator.generate({
+ *   format: 'claude',
+ *   output: './CLAUDE.md'
+ * });
+ */
 export const claudeTemplate = {
   async generate(analysis: ProjectAnalysis, _options: DocGenOptions): Promise<string> {
     const sections = [
