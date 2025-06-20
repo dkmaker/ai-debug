@@ -225,7 +225,8 @@ export class MultiAudienceGenerator {
     const files: GeneratedFile[] = [];
 
     // Create internal documentation directory
-    const internalDir = options.type === 'all' ? join(options.outputDir, 'internal') : options.outputDir;
+    const internalDir =
+      options.type === 'all' ? join(options.outputDir, 'internal') : options.outputDir;
     this.ensureDirectoryExists(internalDir);
 
     // Generate API Reference
@@ -286,7 +287,8 @@ export class MultiAudienceGenerator {
     const files: GeneratedFile[] = [];
 
     // Create external documentation directory
-    const externalDir = options.type === 'all' ? join(options.outputDir, 'external') : options.outputDir;
+    const externalDir =
+      options.type === 'all' ? join(options.outputDir, 'external') : options.outputDir;
     this.ensureDirectoryExists(externalDir);
 
     // Generate CLAUDE.md section
@@ -453,24 +455,28 @@ export class MultiAudienceGenerator {
     if (audience === 'internal') {
       sections.push('## Overview');
       sections.push('');
-      sections.push('This reference includes all internal APIs, private methods, and implementation details.');
+      sections.push(
+        'This reference includes all internal APIs, private methods, and implementation details.',
+      );
       sections.push('For external/public API documentation, see the external documentation.');
       sections.push('');
       sections.push('### Coverage Statistics');
       sections.push('');
       sections.push(`- **Total documented elements**: ${entries.length}`);
-      sections.push(`- **Classes**: ${entries.filter(e => e.type === 'class').length}`);
-      sections.push(`- **Interfaces**: ${entries.filter(e => e.type === 'interface').length}`);
-      sections.push(`- **Functions**: ${entries.filter(e => e.type === 'function').length}`);
-      sections.push(`- **Methods**: ${entries.filter(e => e.type === 'method').length}`);
-      sections.push(`- **Constants**: ${entries.filter(e => e.type === 'const').length}`);
-      sections.push(`- **Types**: ${entries.filter(e => e.type === 'type').length}`);
+      sections.push(`- **Classes**: ${entries.filter((e) => e.type === 'class').length}`);
+      sections.push(`- **Interfaces**: ${entries.filter((e) => e.type === 'interface').length}`);
+      sections.push(`- **Functions**: ${entries.filter((e) => e.type === 'function').length}`);
+      sections.push(`- **Methods**: ${entries.filter((e) => e.type === 'method').length}`);
+      sections.push(`- **Constants**: ${entries.filter((e) => e.type === 'const').length}`);
+      sections.push(`- **Types**: ${entries.filter((e) => e.type === 'type').length}`);
       sections.push('');
       sections.push('### Documentation Quality');
       sections.push('');
-      const withExamples = entries.filter(e => e.examples.length > 0).length;
-      const withWorkflows = entries.filter(e => e.workflow).length;
-      sections.push(`- **Elements with examples**: ${withExamples} (${Math.round(withExamples / entries.length * 100)}%)`);
+      const withExamples = entries.filter((e) => e.examples.length > 0).length;
+      const withWorkflows = entries.filter((e) => e.workflow).length;
+      sections.push(
+        `- **Elements with examples**: ${withExamples} (${Math.round((withExamples / entries.length) * 100)}%)`,
+      );
       sections.push(`- **Elements with workflows**: ${withWorkflows}`);
       sections.push('');
     }
@@ -489,10 +495,12 @@ export class MultiAudienceGenerator {
         let description = '';
         switch (type) {
           case 'class':
-            description = 'Main implementation classes. These form the core architecture of the system.';
+            description =
+              'Main implementation classes. These form the core architecture of the system.';
             break;
           case 'interface':
-            description = 'Type definitions and contracts. These define the shape of data structures and public APIs.';
+            description =
+              'Type definitions and contracts. These define the shape of data structures and public APIs.';
             break;
           case 'function':
             description = 'Standalone utility functions and helpers.';
@@ -560,9 +568,11 @@ export class MultiAudienceGenerator {
     sections.push('## Core Components');
     sections.push('');
 
-    const coreComponents = entries.filter((e) => 
-      e.type === 'class' && e.exported && 
-      (e.name.includes('Debug') || e.name.includes('Cache') || e.name.includes('Logger'))
+    const coreComponents = entries.filter(
+      (e) =>
+        e.type === 'class' &&
+        e.exported &&
+        (e.name.includes('Debug') || e.name.includes('Cache') || e.name.includes('Logger')),
     );
 
     for (const component of coreComponents) {
@@ -572,10 +582,10 @@ export class MultiAudienceGenerator {
       sections.push('');
 
       // Add methods for classes
-      const methods = entries.filter((e) => 
-        e.type === 'method' && e.name.startsWith(`${component.name}.`)
+      const methods = entries.filter(
+        (e) => e.type === 'method' && e.name.startsWith(`${component.name}.`),
       );
-      
+
       if (methods.length > 0) {
         sections.push('**Key Methods:**');
         sections.push('');
@@ -600,10 +610,10 @@ export class MultiAudienceGenerator {
     if (interfaces.length > 0) {
       sections.push('## Data Structures');
       sections.push('');
-      
+
       // Group interfaces by category
       const categories = new Map<string, JSDocEntry[]>();
-      
+
       for (const iface of interfaces) {
         let category = 'General';
         if (iface.name.toLowerCase().includes('config')) {
@@ -619,7 +629,7 @@ export class MultiAudienceGenerator {
         } else if (iface.name.toLowerCase().includes('error')) {
           category = 'Error Handling';
         }
-        
+
         if (!categories.has(category)) {
           categories.set(category, []);
         }
@@ -629,19 +639,22 @@ export class MultiAudienceGenerator {
       for (const [category, categoryInterfaces] of categories) {
         sections.push(`### ${category}`);
         sections.push('');
-        
+
         for (const iface of categoryInterfaces) {
           sections.push(`#### ${iface.name}`);
           sections.push('');
           sections.push(iface.description.split('\n')[0]);
           sections.push('');
-          
+
           if (iface.parameters.length > 0) {
             sections.push('**Properties:**');
             sections.push('');
-            for (const param of iface.parameters.slice(0, 5)) { // Limit to avoid clutter
+            for (const param of iface.parameters.slice(0, 5)) {
+              // Limit to avoid clutter
               const optionalText = param.optional ? ' *(optional)*' : '';
-              sections.push(`- \`${param.name}\`: \`${param.type}\`${optionalText} - ${param.description}`);
+              sections.push(
+                `- \`${param.name}\`: \`${param.type}\`${optionalText} - ${param.description}`,
+              );
             }
             if (iface.parameters.length > 5) {
               sections.push(`- *...and ${iface.parameters.length - 5} more properties*`);
@@ -655,10 +668,12 @@ export class MultiAudienceGenerator {
     // Add implementation patterns
     sections.push('## Implementation Patterns');
     sections.push('');
-    
+
     sections.push('### Template Pattern');
     sections.push('');
-    sections.push('The system uses a template pattern to standardize debugging across different operation types:');
+    sections.push(
+      'The system uses a template pattern to standardize debugging across different operation types:',
+    );
     sections.push('');
     sections.push('```typescript');
     sections.push('interface Template {');
@@ -683,7 +698,9 @@ export class MultiAudienceGenerator {
 
     sections.push('### Singleton Logger');
     sections.push('');
-    sections.push('A singleton logger prevents file lock conflicts across multiple debug instances:');
+    sections.push(
+      'A singleton logger prevents file lock conflicts across multiple debug instances:',
+    );
     sections.push('');
     sections.push('- Thread-safe file writing with queue-based batching');
     sections.push('- Automatic log rotation and compression');
@@ -757,21 +774,23 @@ export class MultiAudienceGenerator {
     ];
 
     // Add core modules
-    const coreModules = entries.filter((e) => 
-      e.type === 'class' && e.exported && 
-      (e.file.includes('core/') || e.file.includes('docs/') || e.file.includes('cli/'))
+    const coreModules = entries.filter(
+      (e) =>
+        e.type === 'class' &&
+        e.exported &&
+        (e.file.includes('core/') || e.file.includes('docs/') || e.file.includes('cli/')),
     );
 
     if (coreModules.length > 0) {
       sections.push('### Core Modules');
       sections.push('');
-      
+
       for (const module of coreModules) {
         sections.push(`#### ${module.name} (\`${module.file}\`)`);
         sections.push('');
         sections.push(module.description.split('\n')[0]);
         sections.push('');
-        
+
         // Add key responsibilities
         if (module.name.includes('Debug')) {
           sections.push('**Key Responsibilities:**');
@@ -943,10 +962,18 @@ export class MultiAudienceGenerator {
     // Add core concepts
     sections.push('### Core Concepts');
     sections.push('');
-    sections.push('- **Debug Wrapping**: Wrap operations with `debug.wrap()` for automatic instrumentation');
-    sections.push('- **Templates**: Built-in patterns for common operations (http, database, file, business, auto)');
-    sections.push('- **Caching**: Automatic intelligent caching based on operation type and context');
-    sections.push('- **Raw Mode**: Deep object inspection with `debug.raw()` for complex debugging');
+    sections.push(
+      '- **Debug Wrapping**: Wrap operations with `debug.wrap()` for automatic instrumentation',
+    );
+    sections.push(
+      '- **Templates**: Built-in patterns for common operations (http, database, file, business, auto)',
+    );
+    sections.push(
+      '- **Caching**: Automatic intelligent caching based on operation type and context',
+    );
+    sections.push(
+      '- **Raw Mode**: Deep object inspection with `debug.raw()` for complex debugging',
+    );
     sections.push('');
 
     // Add quick API reference
@@ -965,8 +992,8 @@ export class MultiAudienceGenerator {
     if (exportedInterfaces.length > 0) {
       sections.push('### Key Interfaces');
       sections.push('');
-      const keyInterfaces = exportedInterfaces.filter(e => 
-        ['Config', 'DebugContext', 'DebugResult', 'Template', 'CacheOptions'].includes(e.name)
+      const keyInterfaces = exportedInterfaces.filter((e) =>
+        ['Config', 'DebugContext', 'DebugResult', 'Template', 'CacheOptions'].includes(e.name),
       );
       for (const iface of keyInterfaces) {
         sections.push(`- **${iface.name}**: ${iface.description.split('\n')[0]}`);
@@ -1017,7 +1044,9 @@ export class MultiAudienceGenerator {
     sections.push('');
     sections.push('When helping with this debug system:');
     sections.push('');
-    sections.push('1. **Always wrap async operations** in `debug.wrap()` for comprehensive tracking');
+    sections.push(
+      '1. **Always wrap async operations** in `debug.wrap()` for comprehensive tracking',
+    );
     sections.push('2. **Choose appropriate templates**: http, database, file, business, or auto');
     sections.push('3. **Provide meaningful action names** that describe the operation purpose');
     sections.push('4. **Include relevant context** for better caching and analysis');
@@ -1037,15 +1066,15 @@ export class MultiAudienceGenerator {
     const entriesWithExamples = entries.filter(
       (e) => e.examples.length > 0 && options.includeExamples && e.exported,
     );
-    
+
     if (entriesWithExamples.length > 0) {
       sections.push('## Implementation Examples');
       sections.push('');
 
       // Find the most relevant examples
-      const relevantEntries = entriesWithExamples.filter(e => 
-        e.type === 'class' || e.name === 'Config' || e.name.includes('Debug')
-      ).slice(0, 3);
+      const relevantEntries = entriesWithExamples
+        .filter((e) => e.type === 'class' || e.name === 'Config' || e.name.includes('Debug'))
+        .slice(0, 3);
 
       for (const entry of relevantEntries) {
         if (entry.examples.length > 0) {
@@ -1110,7 +1139,7 @@ export class MultiAudienceGenerator {
     }
 
     // Add basic import example
-    const mainClass = entries.find(e => e.type === 'class' && e.exported);
+    const mainClass = entries.find((e) => e.type === 'class' && e.exported);
     if (mainClass && options.projectName) {
       sections.push('### Basic Setup');
       sections.push('');
@@ -1133,15 +1162,24 @@ export class MultiAudienceGenerator {
 
       // Group examples by functional category
       const categories = new Map<string, JSDocEntry[]>();
-      
+
       for (const entry of entriesWithExamples) {
         // Determine category based on entry name and type
         let category = 'General';
-        if (entry.name.toLowerCase().includes('cache') || entry.description.toLowerCase().includes('caching')) {
+        if (
+          entry.name.toLowerCase().includes('cache') ||
+          entry.description.toLowerCase().includes('caching')
+        ) {
           category = 'Caching';
-        } else if (entry.name.toLowerCase().includes('debug') || entry.description.toLowerCase().includes('debug')) {
+        } else if (
+          entry.name.toLowerCase().includes('debug') ||
+          entry.description.toLowerCase().includes('debug')
+        ) {
           category = 'Debugging';
-        } else if (entry.name.toLowerCase().includes('config') || entry.description.toLowerCase().includes('configuration')) {
+        } else if (
+          entry.name.toLowerCase().includes('config') ||
+          entry.description.toLowerCase().includes('configuration')
+        ) {
           category = 'Configuration';
         } else if (entry.name.toLowerCase().includes('template')) {
           category = 'Templates';
@@ -1169,7 +1207,7 @@ export class MultiAudienceGenerator {
 
           // Add all examples for this entry
           for (const example of entry.examples) {
-            if (example.title && example.title !== `Example 1`) {
+            if (example.title && example.title !== 'Example 1') {
               sections.push(`**${example.title}:**`);
               sections.push('');
             }
@@ -1191,12 +1229,13 @@ export class MultiAudienceGenerator {
     // Add common patterns section
     sections.push('## Common Patterns');
     sections.push('');
-    
-    const templateEntries = entries.filter(e => 
-      e.name.toLowerCase().includes('template') || 
-      e.description.toLowerCase().includes('template')
+
+    const templateEntries = entries.filter(
+      (e) =>
+        e.name.toLowerCase().includes('template') ||
+        e.description.toLowerCase().includes('template'),
     );
-    
+
     if (templateEntries.length > 0) {
       sections.push('### Using Built-in Templates');
       sections.push('');
@@ -1239,18 +1278,15 @@ export class MultiAudienceGenerator {
       (e) =>
         e.exported &&
         (e.name.toLowerCase().includes('config') ||
-         e.name.toLowerCase().includes('option') ||
-         (e.type === 'interface' && (
-           e.name === 'Config' ||
-           e.name.endsWith('Config') ||
-           e.name.endsWith('Options')
-         )))
+          e.name.toLowerCase().includes('option') ||
+          (e.type === 'interface' &&
+            (e.name === 'Config' || e.name.endsWith('Config') || e.name.endsWith('Options')))),
     );
 
     if (configEntries.length > 0) {
       // Organize by importance - main Config first
-      const mainConfig = configEntries.find(e => e.name === 'Config');
-      const otherConfigs = configEntries.filter(e => e.name !== 'Config');
+      const mainConfig = configEntries.find((e) => e.name === 'Config');
+      const otherConfigs = configEntries.filter((e) => e.name !== 'Config');
 
       if (mainConfig) {
         sections.push('## Main Configuration');
@@ -1264,18 +1300,18 @@ export class MultiAudienceGenerator {
         if (mainConfig.examples.length > 0 && options.includeExamples) {
           sections.push('**Complete Configuration Example:**');
           sections.push('');
-          
+
           for (const example of mainConfig.examples) {
             if (example.title && example.title !== 'Example 1') {
               sections.push(`*${example.title}:*`);
               sections.push('');
             }
-            
+
             sections.push(`\`\`\`${example.language}`);
             sections.push(example.code);
             sections.push('```');
             sections.push('');
-            
+
             if (example.description) {
               sections.push(example.description);
               sections.push('');
@@ -1291,10 +1327,10 @@ export class MultiAudienceGenerator {
 
         // Group by category
         const categories = new Map<string, JSDocEntry[]>();
-        
+
         for (const entry of otherConfigs) {
           let category = 'General';
-          
+
           if (entry.name.toLowerCase().includes('cache')) {
             category = 'Caching';
           } else if (entry.name.toLowerCase().includes('log')) {
@@ -1327,8 +1363,12 @@ export class MultiAudienceGenerator {
               sections.push('');
               for (const param of entry.parameters) {
                 const optionalText = param.optional ? ' *(optional)*' : '';
-                const defaultText = param.defaultValue ? ` (default: \`${param.defaultValue}\`)` : '';
-                sections.push(`- **\`${param.name}\`** (\`${param.type}\`)${optionalText}${defaultText}: ${param.description}`);
+                const defaultText = param.defaultValue
+                  ? ` (default: \`${param.defaultValue}\`)`
+                  : '';
+                sections.push(
+                  `- **\`${param.name}\`** (\`${param.type}\`)${optionalText}${defaultText}: ${param.description}`,
+                );
               }
               sections.push('');
             }
@@ -1337,18 +1377,18 @@ export class MultiAudienceGenerator {
             if (entry.examples.length > 0 && options.includeExamples) {
               sections.push('**Usage Examples:**');
               sections.push('');
-              
+
               for (const example of entry.examples) {
                 if (example.title && example.title !== 'Example 1') {
                   sections.push(`*${example.title}:*`);
                   sections.push('');
                 }
-                
+
                 sections.push(`\`\`\`${example.language}`);
                 sections.push(example.code);
                 sections.push('```');
                 sections.push('');
-                
+
                 if (example.description) {
                   sections.push(example.description);
                   sections.push('');
@@ -1424,34 +1464,34 @@ export class MultiAudienceGenerator {
       sections.push('');
       sections.push('```mermaid');
       sections.push('graph TD');
-      
-      const totalSteps = Math.max(...workflowEntries.flatMap(e => 
-        e.workflow?.steps.map(s => s.order) || []
-      ));
-      
+
+      const totalSteps = Math.max(
+        ...workflowEntries.flatMap((e) => e.workflow?.steps.map((s) => s.order) || []),
+      );
+
       for (let i = 1; i <= totalSteps; i++) {
         const stepId = String.fromCharCode(64 + i); // A, B, C, etc.
         const nextStepId = i < totalSteps ? String.fromCharCode(64 + i + 1) : null;
-        
+
         const step = workflowEntries
-          .flatMap(e => e.workflow?.steps || [])
-          .find(s => s.order === i);
-        
+          .flatMap((e) => e.workflow?.steps || [])
+          .find((s) => s.order === i);
+
         const stepDesc = step?.description || `Step ${i}`;
         sections.push(`    ${stepId}[${stepDesc}]`);
-        
+
         if (nextStepId) {
           if (i === totalSteps - 1) {
             sections.push(`    ${stepId} --> ${nextStepId}{Complete?}`);
             sections.push(`    ${nextStepId} -->|Yes| G[Done]`);
             sections.push(`    ${nextStepId} -->|No| H[Review & Adjust]`);
-            sections.push(`    H --> A`);
+            sections.push('    H --> A');
           } else {
             sections.push(`    ${stepId} --> ${nextStepId}`);
           }
         }
       }
-      
+
       sections.push('```');
       sections.push('');
     }
@@ -1462,18 +1502,20 @@ export class MultiAudienceGenerator {
       sections.push('');
 
       const allSteps = workflowEntries
-        .flatMap(e => e.workflow?.steps || [])
+        .flatMap((e) => e.workflow?.steps || [])
         .sort((a, b) => a.order - b.order);
 
       for (const step of allSteps) {
         sections.push(`### Step ${step.order}: ${step.description}`);
         sections.push('');
-        
+
         // Find the entry this step belongs to for context
-        const parentEntry = workflowEntries.find(e => 
-          e.workflow?.steps.some(s => s.order === step.order && s.description === step.description)
+        const parentEntry = workflowEntries.find((e) =>
+          e.workflow?.steps.some(
+            (s) => s.order === step.order && s.description === step.description,
+          ),
         );
-        
+
         if (parentEntry) {
           sections.push(parentEntry.description.split('\n')[0]);
           sections.push('');
@@ -1489,8 +1531,12 @@ export class MultiAudienceGenerator {
         // Add notes section for each step
         sections.push('**Notes:**');
         sections.push('');
-        sections.push(`- ${step.description.toLowerCase().includes('analyze') ? 'Review the analysis results carefully' : 'Ensure this step completes successfully before proceeding'}`);
-        sections.push(`- ${step.description.toLowerCase().includes('config') ? 'Validate configuration settings match your requirements' : 'Test the implementation to verify it works as expected'}`);
+        sections.push(
+          `- ${step.description.toLowerCase().includes('analyze') ? 'Review the analysis results carefully' : 'Ensure this step completes successfully before proceeding'}`,
+        );
+        sections.push(
+          `- ${step.description.toLowerCase().includes('config') ? 'Validate configuration settings match your requirements' : 'Test the implementation to verify it works as expected'}`,
+        );
         sections.push('');
       }
     }
@@ -1503,7 +1549,7 @@ export class MultiAudienceGenerator {
 
       // Group examples by type
       const exampleCategories = new Map<string, JSDocEntry[]>();
-      
+
       for (const entry of entriesWithExamples) {
         let category = 'General';
         if (entry.name.toLowerCase().includes('cache')) {
@@ -1513,7 +1559,7 @@ export class MultiAudienceGenerator {
         } else if (entry.name.toLowerCase().includes('config')) {
           category = 'Configuration Examples';
         }
-        
+
         if (!exampleCategories.has(category)) {
           exampleCategories.set(category, []);
         }
@@ -1527,19 +1573,19 @@ export class MultiAudienceGenerator {
         for (const entry of categoryEntries) {
           for (let i = 0; i < entry.examples.length; i++) {
             const example = entry.examples[i];
-            
+
             sections.push(`#### ${example.title || `${entry.name} Example ${i + 1}`}`);
             sections.push('');
-            
+
             if (example.description) {
               sections.push(example.description);
               sections.push('');
             }
-            
+
             // Add context for the example
             sections.push(`**Context:** ${entry.description.split('\n')[0]}`);
             sections.push('');
-            
+
             sections.push(`\`\`\`${example.language}`);
             sections.push(example.code);
             sections.push('```');
@@ -1552,7 +1598,7 @@ export class MultiAudienceGenerator {
     // Add project-specific examples section
     sections.push('## Project-Specific Examples');
     sections.push('');
-    
+
     for (const entry of entriesWithExamples.slice(0, 2)) {
       for (const example of entry.examples.slice(0, 1)) {
         sections.push(`### ${entry.name} - ${example.title || 'Example'}`);
@@ -1579,7 +1625,9 @@ export class MultiAudienceGenerator {
     // Add troubleshooting
     sections.push('## Troubleshooting');
     sections.push('');
-    sections.push(`- If ${command.replace(/-/g, ' ')} doesn't work as expected, check your configuration`);
+    sections.push(
+      `- If ${command.replace(/-/g, ' ')} doesn't work as expected, check your configuration`,
+    );
     sections.push('- Verify that all required dependencies are properly installed');
     sections.push('- Check debug logs for detailed error information');
     sections.push('- Ensure templates are correctly configured for your use case');
@@ -1604,7 +1652,9 @@ export class MultiAudienceGenerator {
     // Add footer
     sections.push('---');
     sections.push('');
-    sections.push(`*Generated for ${options.projectName || 'AI Debug'} v${options.version || '1.0.0'}*`);
+    sections.push(
+      `*Generated for ${options.projectName || 'AI Debug'} v${options.version || '1.0.0'}*`,
+    );
 
     return sections.join('\n');
   }

@@ -335,10 +335,20 @@ export class JSDocExtractor {
           this.processFunctionDeclaration({ node: node.declaration }, entries, file, exported);
           break;
         case 'TSInterfaceDeclaration':
-          this.processInterfaceDeclaration({ node: node.declaration, parent: node }, entries, file, exported);
+          this.processInterfaceDeclaration(
+            { node: node.declaration, parent: node },
+            entries,
+            file,
+            exported,
+          );
           break;
         case 'TSTypeAliasDeclaration':
-          this.processTypeDeclaration({ node: node.declaration, parent: node }, entries, file, exported);
+          this.processTypeDeclaration(
+            { node: node.declaration, parent: node },
+            entries,
+            file,
+            exported,
+          );
           break;
         case 'VariableDeclaration':
           this.processVariableDeclaration({ node: node.declaration }, entries, file, exported);
@@ -496,12 +506,12 @@ export class JSDocExtractor {
 
     // Try to get JSDoc from the node itself
     let jsdoc = this.extractJSDoc(node);
-    
+
     // If no JSDoc on the interface, check the parent ExportNamedDeclaration
     if (!jsdoc && path.parent?.type === 'ExportNamedDeclaration') {
       jsdoc = this.extractJSDoc(path.parent);
     }
-    
+
     if (!jsdoc) return;
 
     const entry: JSDocEntry = {
@@ -543,12 +553,12 @@ export class JSDocExtractor {
 
     // Try to get JSDoc from the node itself
     let jsdoc = this.extractJSDoc(node);
-    
+
     // If no JSDoc on the type, check the parent ExportNamedDeclaration
     if (!jsdoc && path.parent?.type === 'ExportNamedDeclaration') {
       jsdoc = this.extractJSDoc(path.parent);
     }
-    
+
     if (!jsdoc) return;
 
     const entry: JSDocEntry = {
@@ -783,7 +793,7 @@ export class JSDocExtractor {
    */
   private parseExamples(tags: Map<string, string[]>): JSDocExample[] {
     const examples = tags.get('example') || [];
-    
+
     return examples.map((exampleText, index) => {
       const lines = exampleText.split('\n');
       let title = '';

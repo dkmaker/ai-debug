@@ -99,12 +99,13 @@ export class DebugPersistence {
       return value;
     };
 
-    const data =
-      this.config.compression === 'gzip'
-        ? await this.compress(JSON.stringify(entry, replacer, 2))
-        : JSON.stringify(entry, replacer, 2);
-
-    writeFileSync(path, data);
+    if (this.config.compression === 'gzip') {
+      const compressed = await this.compress(JSON.stringify(entry, replacer, 2));
+      writeFileSync(path, compressed);
+    } else {
+      const data = JSON.stringify(entry, replacer, 2);
+      writeFileSync(path, data);
+    }
   }
 
   /**

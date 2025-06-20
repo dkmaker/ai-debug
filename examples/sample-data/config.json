@@ -1,0 +1,22 @@
+{
+  "app": {
+    "name": "Example App",
+    "version": "1.0.0",
+    "environment": "development",
+    "features": {
+      "enableNotifications": true,
+      "enableAnalytics": false,
+      "maxFileSize": "10MB"
+    }
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "example_db",
+    "ssl": false
+  },
+  "cache": {
+    "ttl": 3600,
+    "maxSize": 1000
+  }
+}

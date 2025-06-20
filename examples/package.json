@@ -1,0 +1,29 @@
+{
+  "name": "ai-debug-examples",
+  "version": "1.0.0",
+  "description": "Real-world examples demonstrating @dkmaker/ai-debug functionality",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "node setup.js",
+    "http": "node http-examples/basic-http.js && node http-examples/rest-api-client.js && node http-examples/error-handling.js",
+    "database": "node database-examples/user-queries.js && node database-examples/batch-operations.js && node database-examples/transaction-example.js",
+    "files": "node file-examples/config-reader.js && node file-examples/log-processor.js && node file-examples/batch-file-ops.js",
+    "queues": "node queue-examples/message-producer.js && node queue-examples/message-consumer.js && node queue-examples/priority-queue.js",
+    "business": "node business-examples/order-processing.js && node business-examples/user-registration.js && node business-examples/payment-processing.js",
+    "cache": "node cache-examples/cache-strategies.js && node cache-examples/ttl-scenarios.js && node cache-examples/cache-performance.js",
+    "templates": "node template-examples/custom-templates.js && node template-examples/template-override.js && node template-examples/raw-debugging.js",
+    "scenarios": "node real-world-scenarios/microservice-simulation.js && node real-world-scenarios/data-pipeline.js && node real-world-scenarios/concurrent-operations.js",
+    "all": "npm run http && npm run database && npm run files && npm run queues && npm run business && npm run cache && npm run templates && npm run scenarios",
+    "clean": "rm -rf debug/ .ai-debug/",
+    "analyze": "node analyze-results.js"
+  },
+  "dependencies": {
+    "@dkmaker/ai-debug": "file:./dkmaker-ai-debug-0.1.0.tgz",
+    "axios": "^1.7.9",
+    "chalk": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

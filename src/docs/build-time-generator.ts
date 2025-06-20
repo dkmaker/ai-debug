@@ -10,7 +10,7 @@
  * is always consistent with the package version.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ClaudeCommandGenerator } from './claude-command-generator.js';
 import { JSDocExtractor } from './jsdoc-extractor.js';
@@ -55,7 +55,7 @@ async function generateBuildTimeDocs(): Promise<void> {
   // Create docs output directory (clean if exists)
   const docsDir = config.outputDir;
   if (existsSync(docsDir)) {
-    console.log(`🧹 Cleaning existing docs directory`);
+    console.log('🧹 Cleaning existing docs directory');
     rmSync(docsDir, { recursive: true, force: true });
   }
   ensureDirectoryExists(docsDir);
@@ -170,7 +170,6 @@ function ensureDirectoryExists(dirPath: string): void {
     mkdirSync(dirPath, { recursive: true });
   }
 }
-
 
 // Run the generator if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {

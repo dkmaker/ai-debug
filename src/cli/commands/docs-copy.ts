@@ -270,7 +270,6 @@ function getPackageVersion(): string | null {
   }
 }
 
-
 /**
  * Copies a directory recursively.
  */

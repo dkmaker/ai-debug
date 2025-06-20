@@ -1,0 +1,64 @@
+{
+  "version": "0.1.0",
+  "features": {
+    "cache": {
+      "enabled": true,
+      "defaultTTL": 300000,
+      "maxSize": 100,
+      "strategy": "lru"
+    },
+    "debug": {
+      "enabled": true,
+      "level": "info",
+      "captureMetadata": true,
+      "raw": {
+        "enabled": true,
+        "maxDepth": 3,
+        "maxSize": 10000
+      }
+    },
+    "logging": {
+      "console": {
+        "enabled": true,
+        "level": "info",
+        "format": "pretty",
+        "colors": true
+      },
+      "file": {
+        "enabled": true,
+        "path": "./debug/debug.log",
+        "maxSize": "50MB",
+        "maxFiles": 3,
+        "format": "json",
+        "compress": false
+      },
+      "filters": {
+        "excludeActions": [],
+        "includeOnlyErrors": false
+      }
+    },
+    "templates": {
+      "default": "base",
+      "autoDetect": true
+    },
+    "documentation": {
+      "autoGenerate": false,
+      "format": "claude",
+      "outputPath": "./CLAUDE.md",
+      "includeExamples": true,
+      "analyzeCoverage": true,
+      "updateOnChange": false,
+      "customSections": {
+        "projectSpecific": true,
+        "performanceTips": true,
+        "commonErrors": true,
+        "teamGuidelines": true
+      }
+    }
+  },
+  "persistence": {
+    "baseDir": "./debug",
+    "structure": "key-based",
+    "compression": "none"
+  }
+}

@@ -461,11 +461,6 @@ Code example for Claude commands.
 Generated Claude command files information.
 
 
-### DatabaseResult
-
-Result structure from database operations.
-
-
 ### LogQueueEntry
 
 Internal queue entry for batched writes.
@@ -522,6 +517,11 @@ const actionMap: ActionMap = {
 ```
 
 
+### DatabaseResult
+
+Result structure from database operations.
+
+
 ### ConfigAnswers
 
 Answers from interactive configuration prompts.
@@ -552,6 +552,61 @@ ensuring consistency between the package version and documentation.
 ## Functions
 
 Standalone utility functions and helpers.
+
+### createProgressBar
+
+Creates a visual progress bar.
+
+**Signature:**
+
+```typescript
+function createProgressBar(): void
+```
+
+
+### getTypeIcon
+
+Gets an icon for each item type.
+
+**Signature:**
+
+```typescript
+function getTypeIcon(): void
+```
+
+
+### analyzeFile
+
+Analyzes a TypeScript file for documentation coverage.
+
+**Signature:**
+
+```typescript
+function analyzeFile(): void
+```
+
+
+### checkForJSDoc
+
+Checks if there's a JSDoc comment above the current line.
+
+**Signature:**
+
+```typescript
+function checkForJSDoc(): void
+```
+
+
+### findTypeScriptFiles
+
+Recursively finds all TypeScript files in a directory.
+
+**Signature:**
+
+```typescript
+function findTypeScriptFiles(): void
+```
+
 
 ### generateBuildTimeDocs
 
@@ -865,61 +920,6 @@ function identifyImportantFields(obj: unknown): string[]
 **Returns:**
 
 `string[]` - Array of important field names
-
-
-### createProgressBar
-
-Creates a visual progress bar.
-
-**Signature:**
-
-```typescript
-function createProgressBar(): void
-```
-
-
-### getTypeIcon
-
-Gets an icon for each item type.
-
-**Signature:**
-
-```typescript
-function getTypeIcon(): void
-```
-
-
-### analyzeFile
-
-Analyzes a TypeScript file for documentation coverage.
-
-**Signature:**
-
-```typescript
-function analyzeFile(): void
-```
-
-
-### checkForJSDoc
-
-Checks if there's a JSDoc comment above the current line.
-
-**Signature:**
-
-```typescript
-function checkForJSDoc(): void
-```
-
-
-### findTypeScriptFiles
-
-Recursively finds all TypeScript files in a directory.
-
-**Signature:**
-
-```typescript
-function findTypeScriptFiles(): void
-```
 
 
 ### processEntry
