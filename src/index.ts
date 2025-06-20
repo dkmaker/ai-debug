@@ -48,6 +48,11 @@ export type {
   LogOptions,
 } from './types/index.js';
 
+// Export configuration types
+export type { CacheConfig } from './core/cache.js';
+export type { PersistenceConfig } from './core/persistence.js';
+export type { FileLogConfig } from './core/logger.js';
+
 // Export templates for customization
 export { baseTemplate } from './templates/base.js';
 export { httpTemplate } from './templates/http.js';

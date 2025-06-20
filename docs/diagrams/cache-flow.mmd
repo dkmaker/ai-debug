@@ -1,0 +1,48 @@
+
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#4A90E2",
+    "primaryTextColor": "#FFFFFF",
+    "primaryBorderColor": "#357ABD",
+    "lineColor": "#666666",
+    "secondaryColor": "#F5F5F5",
+    "tertiaryColor": "#E8E8E8",
+    "background": "#FFFFFF",
+    "mainBkg": "#4A90E2",
+    "secondBkg": "#71B340",
+    "tertiaryBkg": "#F39C12"
+  }
+}}%%
+graph TD
+
+    Operation["Operation Request"]
+    CacheCheck{"Cache Enabled?"}
+    KeyGen["Generate Cache Key"]
+    CacheHit{"Cache Hit?"}
+    ValidTTL{"TTL Valid?"}
+    ReturnCached["Return Cached Result"]
+    Execute["Execute Operation"]
+    ShouldCache{"Should Cache?"}
+    StoreCache["Store in Cache"]
+    ReturnResult["Return Result"]
+
+    Operation --> CacheCheck
+    CacheCheck -->|No| Execute
+    CacheCheck -->|Yes| KeyGen
+    KeyGen --> CacheHit
+    CacheHit -->|Miss| Execute
+    CacheHit -->|Hit| ValidTTL
+    ValidTTL -->|Yes| ReturnCached
+    ValidTTL -->|No| Execute
+    Execute --> ShouldCache
+    ShouldCache -->|No| ReturnResult
+    ShouldCache -->|Yes| StoreCache
+    StoreCache --> ReturnResult
+    ReturnCached --> ReturnResult
+
+    %% Styling
+    classDef operation fill:#4A90E2,stroke:#357ABD,stroke-width:2px,color:#fff
+    classDef decision fill:#F39C12,stroke:#E67E22,stroke-width:2px,color:#fff
+    classDef cache fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
+    classDef result fill:#E74C3C,stroke:#C0392B,stroke-width:2px,color:#fff

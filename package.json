@@ -16,8 +16,9 @@
   "bin": {
     "ai-debug": "./dist/cli/index.js"
   },
-  "files": ["dist"],
+  "files": ["dist", "docs"],
   "scripts": {
+    "docs:generate": "tsx src/docs/build-time-generator.ts",
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run",

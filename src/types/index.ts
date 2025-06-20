@@ -308,6 +308,7 @@ export interface WrapOptions {
  * Main configuration object for the AI debugging system.
  * Controls all aspects of debugging, caching, logging, and documentation.
  *
+ * @audience external
  * @interface Config
  * @property {string} version - Package version for compatibility checking
  * @property {Object} features - Feature toggles and configurations

@@ -1,6 +1,7 @@
 /**
  * Configuration for the caching system.
  *
+ * @audience external
  * @interface CacheConfig
  * @property {boolean} enabled - Whether caching is enabled globally
  * @property {number} defaultTTL - Default time-to-live in milliseconds

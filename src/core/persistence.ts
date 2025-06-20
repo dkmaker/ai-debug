@@ -6,6 +6,7 @@ import type { DebugEntry } from '../types/index.js';
 /**
  * Configuration for debug data persistence.
  *
+ * @audience external
  * @interface PersistenceConfig
  * @property {string} baseDir - Base directory for storing debug data
  * @property {'key-based' | 'date-based'} structure - Directory structure strategy

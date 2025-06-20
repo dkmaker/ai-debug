@@ -5,7 +5,7 @@
  *
  * Available commands:
  * - init: Initialize ai-debug in a project
- * - docs:generate: Generate AI-optimized documentation
+ * - docs: Copy AI-optimized documentation to your project
  * - analyze: Analyze debug patterns in codebase
  * - view: View debug logs
  * - list: List debug entries
@@ -28,7 +28,7 @@
 import { Command } from 'commander';
 import { analyzeCommand } from './commands/analyze.js';
 import { coverageCommand } from './commands/coverage.js';
-import { docsCommand } from './commands/docs.js';
+import { docsCopyCommand } from './commands/docs-copy.js';
 import { initCommand } from './commands/init.js';
 import { listCommand } from './commands/list.js';
 import { searchCommand } from './commands/search.js';
@@ -50,7 +50,7 @@ program
 
 // Add commands
 program.addCommand(initCommand);
-program.addCommand(docsCommand);
+program.addCommand(docsCopyCommand);
 program.addCommand(analyzeCommand);
 program.addCommand(viewCommand);
 program.addCommand(listCommand);

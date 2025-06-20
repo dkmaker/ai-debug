@@ -13,6 +13,7 @@ import type { DebugEntry } from '../types/index.js';
 /**
  * Configuration for file-based logging.
  *
+ * @audience external
  * @interface FileLogConfig
  * @property {boolean} enabled - Whether file logging is enabled
  * @property {string} path - Path to the log file
