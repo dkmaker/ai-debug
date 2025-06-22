@@ -45,7 +45,6 @@ A single debug log entry representing one wrapped operation.
 const entry: DebugEntry = {
   id: '123e4567-e89b-12d3-a456-426614174000',
   action: 'fetch_user',
-  key: 'user:123',
   timestamp: '2024-01-01T12:00:00.000Z',
   duration_ms: 145,
   status: 'success',
@@ -68,7 +67,6 @@ interface UserDebugData {
 const entry: TypedDebugEntry<UserDebugData> = {
   id: '123',
   action: 'fetch_user',
-  key: 'user:123',
   timestamp: '2024-01-01T12:00:00.000Z',
   duration_ms: 145,
   status: 'success',
@@ -94,9 +92,12 @@ const apiTemplate: Template = {
   }),
   cache: {
     enabled: true,
-    ttl: 300,
-    key: (ctx) => `api:${ctx.method}:${ctx.url}`
-  }
+    ttl: 300
+  },
+  cacheContext: (ctx) => ({
+    method: ctx.method,
+    url: ctx.url
+  })
 };
 ```
 
@@ -173,6 +174,31 @@ const actionMap: ActionMap = {
 
 ### Caching
 
+#### CacheMetadata
+
+Metadata for cache entries and statistics.
+
+```typescript
+const metadata: CacheMetadata = {
+  entries: {
+    'a1b2c3d4': {
+      context: { method: 'GET', url: '/api/users' },
+      created: '2024-01-01T12:00:00.000Z',
+      lastAccessed: '2024-01-01T12:05:00.000Z',
+      hitCount: 5,
+      size: 2048,
+      ttl: 300000,
+      expired: false
+    }
+  },
+  stats: {
+    totalHits: 100,
+    totalMisses: 20,
+    totalSize: 51200
+  }
+};
+```
+
 #### CacheOptions
 
 Options for controlling caching behavior in templates.
@@ -180,8 +206,7 @@ Options for controlling caching behavior in templates.
 ```typescript
 const cacheOptions: CacheOptions = {
   enabled: true,
-  ttl: 300, // 5 minutes
-  key: (context) => `api:${context.url}:${context.method}`,
+  ttl: 300, // 5 minutes in seconds
   shouldCache: (result) => result.status === 200
 };
 ```

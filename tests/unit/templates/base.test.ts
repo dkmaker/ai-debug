@@ -30,7 +30,6 @@ describe('baseTemplate', () => {
     it('captures basic debug information', () => {
       const context = {
         action: 'test_action',
-        key: 'test_key',
         duration: 150,
       };
       const result = { data: 'test result' };
@@ -39,7 +38,6 @@ describe('baseTemplate', () => {
 
       expect(debugData).toMatchObject({
         action: 'test_action',
-        key: 'test_key',
         duration_ms: 150,
         status: 'success',
         result: { data: 'test result' },
@@ -51,7 +49,6 @@ describe('baseTemplate', () => {
     it('handles errors correctly', () => {
       const context = {
         action: 'test_action',
-        key: 'test_key',
         duration: 150,
       };
       const error = new Error('Test error');
@@ -60,7 +57,6 @@ describe('baseTemplate', () => {
 
       expect(debugData).toMatchObject({
         action: 'test_action',
-        key: 'test_key',
         duration_ms: 150,
         status: 'failure',
         error: 'Test error',
@@ -71,7 +67,6 @@ describe('baseTemplate', () => {
     it('generates timestamp in ISO format', () => {
       const context = {
         action: 'test',
-        key: 'test',
         duration: 100,
       };
 
@@ -105,7 +100,6 @@ describe('baseTemplate', () => {
       const entry = {
         id: '123',
         action: 'test_action',
-        key: 'test_key',
         timestamp: '2024-01-01T12:00:00.000Z',
         duration_ms: 150,
         status: 'success' as const,
@@ -123,7 +117,6 @@ describe('baseTemplate', () => {
       const entry = {
         id: '123',
         action: 'test_action',
-        key: 'test_key',
         timestamp: '2024-01-01T12:00:00.000Z',
         duration_ms: 150,
         status: 'failure' as const,

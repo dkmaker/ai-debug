@@ -3,17 +3,14 @@ import { DebugPersistence } from '../../../src/core/persistence.js';
 import type { DebugEntry } from '../../../src/types/index.js';
 
 // Mock modules
-vi.mock('node:fs');
 vi.mock('node:zlib');
 vi.mock('node:util');
-vi.mock('node:crypto');
 
 describe('DebugPersistence', () => {
   let persistence: DebugPersistence;
   const baseEntry: DebugEntry = {
     id: 'test-123',
     action: 'test_action',
-    key: 'test_key',
     timestamp: '2024-01-01T00:00:00.000Z',
     duration_ms: 100,
     status: 'success',
@@ -97,17 +94,16 @@ describe('DebugPersistence', () => {
       const fs = await import('node:fs');
       await persistence.save(baseEntry);
 
-      expect(fs.mkdirSync).toHaveBeenCalledWith(
-        expect.stringContaining('debug/test_action/test_key'),
-        { recursive: true },
-      );
+      expect(fs.mkdirSync).toHaveBeenCalledWith(expect.stringContaining('debug/test_action'), {
+        recursive: true,
+      });
     });
 
     it('generates correct file path', async () => {
       const fs = await import('node:fs');
       await persistence.save(baseEntry);
 
-      const expectedPath = 'debug/test_action/test_key/2024-01-01T00-00-00-000Z.json';
+      const expectedPath = 'debug/test_action/2024-01-01T00-00-00-000Z.json';
       expect(fs.writeFileSync).toHaveBeenCalledWith(expectedPath, expect.any(String));
     });
 
@@ -116,7 +112,6 @@ describe('DebugPersistence', () => {
       const entry: DebugEntry = {
         ...baseEntry,
         action: 'test/action:with<>special|chars?*',
-        key: 'key\\with"quotes',
       };
 
       await persistence.save(entry);
@@ -175,7 +170,7 @@ describe('DebugPersistence', () => {
     it('generates correct file name', async () => {
       const fs = await import('node:fs');
       const timestampMs = new Date(baseEntry.timestamp).getTime();
-      const expectedFilename = `test_action-test_key-${timestampMs}.json`;
+      const expectedFilename = `test_action-${timestampMs}.json`;
 
       await persistence.save(baseEntry);
 

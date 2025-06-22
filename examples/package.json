@@ -19,7 +19,7 @@
     "analyze": "node analyze-results.js"
   },
   "dependencies": {
-    "@dkmaker/ai-debug": "file:./dkmaker-ai-debug-0.1.0.tgz",
+    "@dkmaker/ai-debug": "file:./dkmaker-ai-debug.tgz",
     "axios": "^1.7.9",
     "chalk": "^5.4.1"
   },

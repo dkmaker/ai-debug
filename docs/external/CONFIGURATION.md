@@ -93,8 +93,7 @@ Allows fine-grained control over what gets cached and for how long.
 ```typescript
 const cacheOptions: CacheOptions = {
   enabled: true,
-  ttl: 300, // 5 minutes
-  key: (context) => `api:${context.url}:${context.method}`,
+  ttl: 300, // 5 minutes in seconds
   shouldCache: (result) => result.status === 200
 };
 ```

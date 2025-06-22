@@ -64,6 +64,12 @@ import type { Template } from '../types/index.js';
  */
 export const fileTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    operation: context.operation,
+    path: context.path,
+    encoding: context.encoding,
+    options: context.options,
+  }),
   debugData: (context, result, error) => ({
     operation: context.operation, // read, write, delete, etc.
     path: context.path,

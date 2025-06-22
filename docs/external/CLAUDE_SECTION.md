@@ -110,7 +110,6 @@ A single debug log entry representing one wrapped operation.
 const entry: DebugEntry = {
   id: '123e4567-e89b-12d3-a456-426614174000',
   action: 'fetch_user',
-  key: 'user:123',
   timestamp: '2024-01-01T12:00:00.000Z',
   duration_ms: 145,
   status: 'success',

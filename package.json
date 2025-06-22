@@ -18,7 +18,7 @@
   },
   "files": ["dist", "docs"],
   "scripts": {
-    "docs:generate": "tsx src/docs/build-time-generator.ts",
+    "docs:generate": "rm -Rf ./docs && mkdir -p ./docs && tsx src/docs/build-time-generator.ts",
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
@@ -30,7 +30,9 @@
     "lint:all": "biome check --write . && pnpm test",
     "pretest": "biome check tests/",
     "doc:coverage": "tsx src/tools/doc-coverage.ts src",
-    "prepublishOnly": "pnpm run build && pnpm test"
+    "prepublishOnly": "pnpm run build && pnpm test",
+    "deploy:examples": "pnpm run build && pnpm run lint && pnpm test && npm pack && mv dkmaker-ai-debug*.tgz examples/dkmaker-ai-debug.tgz && cd examples && rm -rf node_modules debug && npm install",
+    "deploy:examples:dev": "pnpm run build && rm -f examples/dkmaker-ai-debug.tgz && npm pack && mv dkmaker-ai-debug*.tgz examples/dkmaker-ai-debug.tgz && cd examples && rm -rf node_modules package-lock.json debug && npm install"
   },
   "keywords": [
     "debug",

@@ -186,36 +186,27 @@ const weatherData = await debug.wrap('fetch_weather', async () => {
 
 ## Project-Specific Examples
 
-### CacheOptions - Example 1
+### CacheMetadata - Example 1
 
-From: `types/index.ts:175`
-
-```typescript
-const cacheOptions: CacheOptions = {
-  enabled: true,
-  ttl: 300, // 5 minutes
-  key: (context) => `api:${context.url}:${context.method}`,
-  shouldCache: (result) => result.status === 200
-};
-```
-
-### Template - Example 1
-
-From: `types/index.ts:264`
+From: `types/index.ts:174`
 
 ```typescript
-const apiTemplate: Template = {
-  extends: 'base',
-  debugData: (context, result, error) => ({
-    url: context.url,
-    method: context.method,
-    status: result?.status,
-    error: error?.message
-  }),
-  cache: {
-    enabled: true,
-    ttl: 300,
-    key: (ctx) => `api:${ctx.method}:${ctx.url}`
+const metadata: CacheMetadata = {
+  entries: {
+    'a1b2c3d4': {
+      context: { method: 'GET', url: '/api/users' },
+      created: '2024-01-01T12:00:00.000Z',
+      lastAccessed: '2024-01-01T12:05:00.000Z',
+      hitCount: 5,
+      size: 2048,
+      ttl: 300000,
+      expired: false
+    }
+  },
+  stats: {
+    totalHits: 100,
+    totalMisses: 20,
+    totalSize: 51200
   }
 };
 ```

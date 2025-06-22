@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { FileLogger } from '../src/core/logger.js';
 import { AIDebug } from '../src/index.js';
 import type { Config } from '../src/types/index.js';
 
 describe('AIDebug', () => {
+  afterEach(() => {
+    // Reset FileLogger singleton to prevent test contamination
+    FileLogger.resetInstance();
+  });
   it('should create an instance', () => {
     const config: Config = {
       version: '1.0.0',

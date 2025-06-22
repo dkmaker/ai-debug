@@ -1,0 +1,19 @@
+# Application Configuration
+app:
+  name: Example YAML App
+  version: 2.0.0
+  environment: staging
+  features:
+    enableNotifications: true
+    enableAnalytics: true
+    maxFileSize: 20MB
+
+database:
+  host: yaml-db.example.com
+  port: 5432
+  name: yaml_example_db
+  ssl: true
+
+cache:
+  ttl: 7200
+  maxSize: 2000

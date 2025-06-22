@@ -115,6 +115,18 @@ export type HashFunction = (data: unknown) => string;
  */
 export const httpTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    method: context.method,
+    url: context.url,
+    headers: context.headers
+      ? Object.fromEntries(
+          Object.entries(context.headers as Record<string, unknown>).filter(
+            ([key]) => !['authorization', 'cookie', 'x-api-key'].includes(key.toLowerCase()),
+          ),
+        )
+      : undefined,
+    body: context.body,
+  }),
   debugData: (context, result, error) => ({
     request: {
       url: context.url,
@@ -144,8 +156,7 @@ export const httpTemplate: Template = {
     },
   }),
   cache: {
-    key: (ctx, hasher: HashFunction = defaultHasher) =>
-      `${ctx.method}:${ctx.url}:${hasher(ctx.body)}`,
+    enabled: true,
     ttl: 5 * 60 * 1000, // 5 minutes
     shouldCache: (result) => ((result as { status?: number } | null)?.status || 0) < 400,
   },

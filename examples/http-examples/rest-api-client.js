@@ -96,7 +96,7 @@ class RestApiClient {
 const apiClient = new RestApiClient('https://api.shop.example.com', 'api-key-12345');
 
 async function fetchProductList() {
-  console.log(chalk.yellow('\\n📋 Fetching product list...'));
+  console.log(chalk.yellow('📋 Fetching product list...'));
   
   /*DEBUG:START*/
   const response = await debug.wrap('fetch_products', async () => {
@@ -121,7 +121,7 @@ async function fetchProductList() {
 }
 
 async function fetchSingleProduct(productId) {
-  console.log(chalk.yellow(`\\n🔍 Fetching product ${productId}...`));
+  console.log(chalk.yellow(`🔍 Fetching product ${productId}...`));
   
   /*DEBUG:START*/
   const response = await debug.wrap('fetch_product_details', async () => {
@@ -145,7 +145,7 @@ async function fetchSingleProduct(productId) {
 }
 
 async function createProduct() {
-  console.log(chalk.yellow('\\n➕ Creating new product...'));
+  console.log(chalk.yellow('➕ Creating new product...'));
   
   const newProduct = {
     name: 'Smart Watch',
@@ -176,7 +176,7 @@ async function createProduct() {
 }
 
 async function updateProduct(productId) {
-  console.log(chalk.yellow(`\\n✏️  Updating product ${productId}...`));
+  console.log(chalk.yellow(`✏️  Updating product ${productId}...`));
   
   const updateData = {
     name: 'Gaming Laptop Pro',
@@ -207,7 +207,7 @@ async function updateProduct(productId) {
 }
 
 async function deleteProduct(productId) {
-  console.log(chalk.yellow(`\\n🗑️  Deleting product ${productId}...`));
+  console.log(chalk.yellow(`🗑️  Deleting product ${productId}...`));
   
   /*DEBUG:START*/
   const response = await debug.wrap('delete_product', async () => {
@@ -230,7 +230,7 @@ async function deleteProduct(productId) {
 }
 
 async function batchRequests() {
-  console.log(chalk.yellow('\\n📦 Running batch requests...'));
+  console.log(chalk.yellow('📦 Running batch requests...'));
   
   const productIds = [1, 2, 3];
   const promises = productIds.map(id => {
@@ -267,7 +267,7 @@ async function batchRequests() {
 }
 
 async function runRestApiExamples() {
-  console.log(chalk.blue('\\n🚀 Starting REST API Client Examples\\n'));
+  console.log(chalk.blue('🚀 Starting REST API Client Examples'));
   
   try {
     // CRUD operations
@@ -280,7 +280,7 @@ async function runRestApiExamples() {
     // Advanced scenarios
     await batchRequests();
     
-    console.log(chalk.green('\\n✅ All REST API examples completed successfully!'));
+    console.log(chalk.green('✅ All REST API examples completed successfully!'));
     console.log(chalk.blue('📊 Check ./debug/ directory for detailed request/response data'));
     
   } catch (error) {

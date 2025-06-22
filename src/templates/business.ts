@@ -1,18 +1,5 @@
-import { createHash } from 'node:crypto';
 import type { BusinessError } from '../types/errors.js';
 import type { Template } from '../types/index.js';
-
-/**
- * Creates a short hash of data for cache keys.
- *
- * @param {unknown} data - Data to hash
- * @returns {string} 8-character hash
- * @private
- */
-function hash(data: unknown): string {
-  const str = JSON.stringify(data);
-  return createHash('sha256').update(str).digest('hex').slice(0, 8);
-}
 
 /**
  * Template for business logic and domain operations.
@@ -71,6 +58,11 @@ function hash(data: unknown): string {
  */
 export const businessTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    operation: context.operation,
+    entity: context.entity,
+    input: context.input,
+  }),
   debugData: (context, result, error) => ({
     operation: context.operation,
     entity: context.entity,
@@ -84,7 +76,7 @@ export const businessTemplate: Template = {
     metadata: context.metadata,
   }),
   cache: {
-    key: (ctx) => `${ctx.operation}:${ctx.entity}:${hash(ctx.input)}`,
+    enabled: true,
     ttl: 15 * 60 * 1000, // 15 minutes
     shouldCache: (result) => {
       if (result == null) return false;

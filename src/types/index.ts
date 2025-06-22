@@ -36,7 +36,6 @@
  */
 export interface DebugContext {
   action: string;
-  key?: string;
   url?: string;
   method?: string;
   headers?: Record<string, string>;
@@ -108,20 +107,20 @@ export interface DebugResult {
  * @interface DebugEntry
  * @property {string} id - Unique identifier (UUID) for this entry
  * @property {string} action - The action name from DebugContext
- * @property {string} key - Cache key used for this operation
  * @property {string} timestamp - ISO 8601 timestamp when operation started
  * @property {number} duration_ms - How long the operation took in milliseconds
  * @property {'success' | 'failure'} status - Whether the operation succeeded
  * @property {unknown} data - Combined context and result data
  * @property {string} [error] - Error message if operation failed
  * @property {boolean} [cached] - Whether result was served from cache
+ * @property {string} [cacheKey] - The cache key if this was a cache hit
+ * @property {unknown} [cacheContext] - The context object used to generate the cache key
  * @property {string} [templateUsed] - Name of the template used for debugging
  *
  * @example
  * const entry: DebugEntry = {
  *   id: '123e4567-e89b-12d3-a456-426614174000',
  *   action: 'fetch_user',
- *   key: 'user:123',
  *   timestamp: '2024-01-01T12:00:00.000Z',
  *   duration_ms: 145,
  *   status: 'success',
@@ -133,14 +132,79 @@ export interface DebugResult {
 export interface DebugEntry {
   id: string;
   action: string;
-  key: string;
   timestamp: string;
   duration_ms: number;
   status: 'success' | 'failure';
   data: unknown;
   error?: string;
   cached?: boolean;
+  cacheKey?: string; // Cache key if this was a cache hit
+  cacheContext?: unknown; // The context object used to generate the cache key
   templateUsed?: string;
+}
+
+/**
+ * Metadata for cache entries and statistics.
+ * Tracks cache usage patterns and helps with performance analysis.
+ *
+ * @interface CacheMetadata
+ * @property {Object} entries - Map of cache keys to their metadata
+ * @property {Object} stats - Overall cache statistics
+ *
+ * @example
+ * const metadata: CacheMetadata = {
+ *   entries: {
+ *     'a1b2c3d4': {
+ *       context: { method: 'GET', url: '/api/users' },
+ *       created: '2024-01-01T12:00:00.000Z',
+ *       lastAccessed: '2024-01-01T12:05:00.000Z',
+ *       hitCount: 5,
+ *       size: 2048,
+ *       ttl: 300000,
+ *       expired: false
+ *     }
+ *   },
+ *   stats: {
+ *     totalHits: 100,
+ *     totalMisses: 20,
+ *     totalSize: 51200
+ *   }
+ * };
+ */
+export interface CacheMetadata {
+  entries: {
+    [cacheKey: string]: {
+      context: unknown; // Original request parameters
+      created: string; // ISO timestamp
+      lastAccessed: string; // ISO timestamp
+      hitCount: number; // Number of times accessed
+      size: number; // Size in bytes
+      ttl: number; // Time to live in ms
+      expired?: boolean; // If marked as expired
+    };
+  };
+  stats: {
+    totalHits: number;
+    totalMisses: number;
+    totalSize: number;
+  };
+}
+
+/**
+ * Cache entry stored on disk.
+ * Contains the cached data and metadata about when it was created.
+ *
+ * @interface CacheEntry
+ * @property {unknown} data - The cached result data
+ * @property {string} created - ISO timestamp when cached
+ * @property {number} ttl - Time to live in milliseconds
+ * @property {unknown} context - The context used to generate this cache
+ */
+export interface CacheEntry {
+  data: unknown;
+  created: string;
+  ttl: number;
+  context: unknown;
 }
 
 /**
@@ -150,14 +214,12 @@ export interface DebugEntry {
  * @interface CacheOptions
  * @property {boolean} [enabled] - Whether caching is enabled for this operation
  * @property {number | Function} [ttl] - Time-to-live in seconds, or function returning TTL
- * @property {Function} [key] - Custom function to generate cache keys
  * @property {Function} [shouldCache] - Function to determine if result should be cached
  *
  * @example
  * const cacheOptions: CacheOptions = {
  *   enabled: true,
- *   ttl: 300, // 5 minutes
- *   key: (context) => `api:${context.url}:${context.method}`,
+ *   ttl: 300, // 5 minutes in seconds
  *   shouldCache: (result) => result.status === 200
  * };
  *
@@ -216,7 +278,6 @@ export interface LogOptions {
  * const entry: TypedDebugEntry<UserDebugData> = {
  *   id: '123',
  *   action: 'fetch_user',
- *   key: 'user:123',
  *   timestamp: '2024-01-01T12:00:00.000Z',
  *   duration_ms: 145,
  *   status: 'success',
@@ -256,9 +317,12 @@ export interface TypedDebugEntry<T = unknown> extends Omit<DebugEntry, 'data'> {
  *   }),
  *   cache: {
  *     enabled: true,
- *     ttl: 300,
- *     key: (ctx) => `api:${ctx.method}:${ctx.url}`
- *   }
+ *     ttl: 300
+ *   },
+ *   cacheContext: (ctx) => ({
+ *     method: ctx.method,
+ *     url: ctx.url
+ *   })
  * };
  */
 export interface Template {
@@ -270,6 +334,7 @@ export interface Template {
     parentData?: unknown,
   ) => unknown;
   cache?: CacheOptions;
+  cacheContext?: (context: DebugContext) => unknown; // Extract cache-relevant context
   log?: LogOptions;
 }
 

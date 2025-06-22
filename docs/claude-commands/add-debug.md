@@ -214,7 +214,7 @@ const context: DebugContext = {
 
 ### DebugResult - Example 1
 
-From: `types/index.ts:88`
+From: `types/index.ts:87`
 
 ```typescript
 const result: DebugResult = {

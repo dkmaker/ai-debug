@@ -110,7 +110,7 @@ class ErrorHttpClient {
 }
 
 async function handleNetworkError() {
-  console.log(chalk.yellow('\\n🌐 Testing network connection error...'));
+  console.log(chalk.yellow('🌐 Testing network connection error...'));
   
   try {
     /*DEBUG:START*/
@@ -132,7 +132,7 @@ async function handleNetworkError() {
 }
 
 async function handleTimeoutError() {
-  console.log(chalk.yellow('\\n⏱️  Testing request timeout...'));
+  console.log(chalk.yellow('⏱️  Testing request timeout...'));
   
   try {
     /*DEBUG:START*/
@@ -154,7 +154,7 @@ async function handleTimeoutError() {
 }
 
 async function handle404Error() {
-  console.log(chalk.yellow('\\n🔍 Testing 404 Not Found...'));
+  console.log(chalk.yellow('🔍 Testing 404 Not Found...'));
   
   try {
     /*DEBUG:START*/
@@ -175,7 +175,7 @@ async function handle404Error() {
 }
 
 async function handle500Error() {
-  console.log(chalk.yellow('\\n💥 Testing 500 Internal Server Error...'));
+  console.log(chalk.yellow('💥 Testing 500 Internal Server Error...'));
   
   try {
     /*DEBUG:START*/
@@ -196,7 +196,7 @@ async function handle500Error() {
 }
 
 async function handleAuthenticationError() {
-  console.log(chalk.yellow('\\n🔐 Testing 401 Unauthorized...'));
+  console.log(chalk.yellow('🔐 Testing 401 Unauthorized...'));
   
   try {
     /*DEBUG:START*/
@@ -220,7 +220,7 @@ async function handleAuthenticationError() {
 }
 
 async function handleForbiddenError() {
-  console.log(chalk.yellow('\\n🚫 Testing 403 Forbidden...'));
+  console.log(chalk.yellow('🚫 Testing 403 Forbidden...'));
   
   try {
     /*DEBUG:START*/
@@ -244,7 +244,7 @@ async function handleForbiddenError() {
 }
 
 async function handleRateLimitError() {
-  console.log(chalk.yellow('\\n🚦 Testing 429 Rate Limit Exceeded...'));
+  console.log(chalk.yellow('🚦 Testing 429 Rate Limit Exceeded...'));
   
   try {
     /*DEBUG:START*/
@@ -268,7 +268,7 @@ async function handleRateLimitError() {
 }
 
 async function handleValidationError() {
-  console.log(chalk.yellow('\\n📝 Testing 400 Validation Error...'));
+  console.log(chalk.yellow('📝 Testing 400 Validation Error...'));
   
   const invalidData = {
     email: 'invalid-email',
@@ -299,7 +299,7 @@ async function handleValidationError() {
 }
 
 async function errorRecoveryPatterns() {
-  console.log(chalk.yellow('\\n🔄 Testing error recovery patterns...'));
+  console.log(chalk.yellow('🔄 Testing error recovery patterns...'));
   
   // Retry pattern
   const maxRetries = 3;
@@ -338,7 +338,7 @@ async function errorRecoveryPatterns() {
 }
 
 async function runErrorHandlingExamples() {
-  console.log(chalk.blue('\\n🚀 Starting HTTP Error Handling Examples\\n'));
+  console.log(chalk.blue('🚀 Starting HTTP Error Handling Examples'));
   
   try {
     // Network-level errors
@@ -360,7 +360,7 @@ async function runErrorHandlingExamples() {
     // Recovery patterns
     await errorRecoveryPatterns();
     
-    console.log(chalk.green('\\n✅ All error handling examples completed!'));
+    console.log(chalk.green('✅ All error handling examples completed!'));
     console.log(chalk.blue('📊 Check ./debug/ directory for error analysis data'));
     
   } catch (error) {

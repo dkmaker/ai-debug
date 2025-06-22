@@ -15,7 +15,7 @@ describe('httpTemplate', () => {
 
     it('has correct cache configuration', () => {
       expect(httpTemplate.cache).toMatchObject({
-        key: expect.any(Function),
+        enabled: true,
         ttl: 5 * 60 * 1000, // 5 minutes in milliseconds
         shouldCache: expect.any(Function),
       });
@@ -174,52 +174,27 @@ describe('httpTemplate', () => {
   });
 
   describe('cache configuration', () => {
-    it('generates cache key from method, url, and body hash', () => {
+    it('has cacheContext method', () => {
+      expect(httpTemplate.cacheContext).toBeDefined();
+      expect(typeof httpTemplate.cacheContext).toBe('function');
+    });
+
+    it('extracts cache context from HTTP context', () => {
       const context = {
         method: 'POST',
         url: '/api/users',
         body: { name: 'John' },
+        headers: { 'X-API-Key': 'secret' },
       };
 
-      // Use a mock hasher that returns predictable values
-      const mockHasher = (data: unknown) => {
-        const str = JSON.stringify(data);
-        return `hash${str.length.toString(16).padStart(4, '0')}`;
-      };
+      const cacheContext = httpTemplate.cacheContext?.(context);
 
-      const key = httpTemplate.cache?.key?.(context, mockHasher);
-
-      expect(key).toBe('POST:/api/users:hash000f');
-    });
-
-    it('generates different keys for different bodies', () => {
-      const context1 = {
+      expect(cacheContext).toEqual({
         method: 'POST',
         url: '/api/users',
+        headers: {}, // Sensitive headers are filtered out
         body: { name: 'John' },
-      };
-      const context2 = {
-        method: 'POST',
-        url: '/api/users',
-        body: { name: 'Jane' },
-      };
-
-      // Mock hasher that generates different hashes for different inputs
-      const mockHasher = (data: unknown) => {
-        const str = JSON.stringify(data);
-        let sum = 0;
-        for (let i = 0; i < str.length; i++) {
-          sum += str.charCodeAt(i);
-        }
-        return `hash${(sum % 10000).toString().padStart(4, '0')}`;
-      };
-
-      const key1 = httpTemplate.cache?.key?.(context1, mockHasher);
-      const key2 = httpTemplate.cache?.key?.(context2, mockHasher);
-
-      expect(key1).not.toBe(key2);
-      expect(key1).toMatch(/^POST:\/api\/users:hash\d{4}$/);
-      expect(key2).toMatch(/^POST:\/api\/users:hash\d{4}$/);
+      });
     });
 
     it('should cache successful responses', () => {
@@ -245,7 +220,6 @@ describe('httpTemplate', () => {
       const entry = {
         id: '123',
         action: 'api_call',
-        key: 'test',
         timestamp: '2024-01-01T12:00:00.000Z',
         duration_ms: 150,
         status: 'success' as const,
@@ -268,7 +242,6 @@ describe('httpTemplate', () => {
       const entry = {
         id: '123',
         action: 'api_call',
-        key: 'test',
         timestamp: '2024-01-01T12:00:00.000Z',
         duration_ms: 150,
         status: 'failure' as const,

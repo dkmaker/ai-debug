@@ -10,10 +10,10 @@ This is the `@dkmaker/ai-debug` package - an AI-optimized debugging and caching 
 
 The implementation is complete with:
 - ✅ Core debugger with wrap() and raw() methods
-- ✅ Template system with inheritance  
+- ✅ Template system with inheritance and cacheContext support
 - ✅ Built-in templates (http, database, file, queue, business, auto)
-- ✅ LRU/FIFO cache implementation
-- ✅ Singleton file logger
+- ✅ Disk-based cache implementation with metadata tracking
+- ✅ Singleton file logger with circular reference handling
 - ✅ CLI with all commands implemented
 - ✅ TypeScript build setup using tsup (ESM/CJS dual module support)
 - ✅ Build-time version injection using tsup's define option
@@ -24,6 +24,7 @@ The implementation is complete with:
 - ✅ Analysis commands (analyze, coverage, stats, suggest, etc.)
 - ✅ Project analyzer with AST-based code analysis
 - ✅ Documentation coverage tool
+- ✅ Fixed duplicate folder bug in debug output structure
 
 ## Development Commands
 
@@ -78,7 +79,12 @@ npx @dkmaker/ai-debug watch
 The package maintains a minimal footprint in user repositories:
 - `.ai-debug/wrapper.js` - Thin wrapper (~50 lines) that imports from node_modules
 - `.ai-debug/config.json` - Simple configuration file
-- `debug/` - Debug data directory (git-ignored)
+- `debug/` - Debug data directory (git-ignored) with structure:
+  - `debug/<action>/` - Action-specific directory
+  - `debug/<action>/<timestamp>.json` - Individual debug entries
+  - `debug/<action>/latest.json` - Copy of most recent entry
+  - `debug/<action>/cache/` - Cache entries for this action
+  - `debug/<action>/cache/<cacheKey>.json` - Cached data with metadata
 
 ### Core Components
 
@@ -99,9 +105,16 @@ The package maintains a minimal footprint in user repositories:
    /*DEBUG:END*/
    ```
 
-3. **Singleton Logger**: Internal logging system prevents file lock conflicts across multiple debug instances.
+3. **Disk-Based Cache System**: 
+   - Cache entries stored under `debug/<action>/cache/<cacheKey>.json`
+   - Deterministic cache key generation based on request parameters
+   - Cache metadata tracking (hits, misses, context, expiration)
+   - Expired entries renamed rather than deleted for debugging
+   - Each template can define `cacheContext` to extract cache-relevant data
 
-4. **AI Documentation Generator**: Generates optimized documentation in Claude, Copilot, or Cursor formats.
+4. **Singleton Logger**: Internal logging system prevents file lock conflicts across multiple debug instances.
+
+5. **AI Documentation Generator**: Generates optimized documentation in Claude, Copilot, or Cursor formats.
 
 ### Technical Requirements
 - **Node.js**: 22+

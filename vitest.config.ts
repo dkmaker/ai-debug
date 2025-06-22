@@ -36,7 +36,7 @@ export default defineConfig({
       },
     },
     // Performance optimizations
-    isolate: false, // Faster test execution
+    isolate: true, // Ensure proper test isolation for singletons
     passWithNoTests: true,
     // Type checking
     typecheck: {

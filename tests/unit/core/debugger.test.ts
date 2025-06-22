@@ -46,8 +46,11 @@ describe('AIDebug', () => {
     debug = new AIDebug(config);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks();
+    // Reset FileLogger singleton to prevent test contamination
+    const { FileLogger } = await import('../../../src/core/logger.js');
+    FileLogger.resetInstance();
   });
 
   describe('constructor', () => {
@@ -126,17 +129,50 @@ describe('AIDebug', () => {
     it('uses cache when enabled', async () => {
       const mockFn = vi.fn().mockResolvedValue({ data: 'cached result' });
 
-      // First call - cache miss
-      const result1 = await debug.wrap('cache_test', mockFn, {
-        template: 'base',
-        cache: { ttl: 60000 },
+      // Mock the disk cache behavior
+      const fs = await import('node:fs');
+      const cacheFiles: Record<string, string> = {};
+
+      vi.mocked(fs.existsSync).mockImplementation((path) => {
+        const pathStr = path.toString();
+        if (pathStr.includes('/cache/') && pathStr.endsWith('.json')) {
+          return pathStr in cacheFiles;
+        }
+        return true;
       });
 
-      // Second call - cache hit
-      const result2 = await debug.wrap('cache_test', mockFn, {
-        template: 'base',
-        cache: { ttl: 60000 },
+      vi.mocked(fs.readFileSync).mockImplementation((path) => {
+        const pathStr = path.toString();
+        if (pathStr in cacheFiles) {
+          return cacheFiles[pathStr];
+        }
+        return '{}';
       });
+
+      vi.mocked(fs.writeFileSync).mockImplementation((path, data) => {
+        const pathStr = path.toString();
+        if (pathStr.includes('/cache/')) {
+          cacheFiles[pathStr] = data.toString();
+        }
+      });
+
+      vi.mocked(fs.renameSync).mockImplementation((oldPath, newPath) => {
+        const oldStr = oldPath.toString();
+        const newStr = newPath.toString();
+        if (oldStr in cacheFiles) {
+          cacheFiles[newStr] = cacheFiles[oldStr];
+          delete cacheFiles[oldStr];
+        }
+      });
+
+      // Use the same context for both calls
+      const options = { template: 'base', context: { test: 'cache' } };
+
+      // First call - cache miss
+      const result1 = await debug.wrap('cache_test', mockFn, options);
+
+      // Second call - cache hit
+      const result2 = await debug.wrap('cache_test', mockFn, options);
 
       expect(result1).toEqual({ data: 'cached result' });
       expect(result2).toEqual({ data: 'cached result' });
@@ -268,8 +304,13 @@ describe('AIDebug', () => {
     it('handles persistence errors gracefully', async () => {
       // Make persistence fail
       const fs = await import('node:fs');
-      vi.mocked(fs.mkdirSync).mockImplementation(() => {
-        throw new Error('Permission denied');
+      let mkdirCallCount = 0;
+      vi.mocked(fs.mkdirSync).mockImplementation((path) => {
+        mkdirCallCount++;
+        // Only fail after initial setup calls (allow cache directory creation)
+        if (mkdirCallCount > 4 && typeof path === 'string' && path.includes('cache')) {
+          throw new Error('Permission denied');
+        }
       });
 
       const mockFn = vi.fn().mockResolvedValue('result');

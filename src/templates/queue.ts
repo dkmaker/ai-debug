@@ -89,6 +89,12 @@ function truncateBody(body: unknown, maxLength = 1000): unknown {
  */
 export const queueTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    queue: context.queue,
+    operation: context.operation,
+    messageType: context.messageType,
+    topic: context.topic,
+  }),
   debugData: (context, result, error) => ({
     queue: context.queue,
     operation: context.operation, // send, receive, ack, nack

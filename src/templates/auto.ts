@@ -200,6 +200,10 @@ function identifyImportantFields(obj: unknown): string[] {
  */
 export const autoTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    action: context.action,
+    params: context.params,
+  }),
   debugData: (_context, result, _error, baseData) => {
     const base = typeof baseData === 'object' && baseData !== null ? baseData : {};
     const res = result as Record<string, unknown> | null;

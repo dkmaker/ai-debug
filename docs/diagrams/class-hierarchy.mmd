@@ -26,6 +26,12 @@ classDiagram
     class DebugEntry {
         <<interface>>
     }
+    class CacheMetadata {
+        <<interface>>
+    }
+    class CacheEntry {
+        <<interface>>
+    }
     class CacheOptions {
         <<interface>>
     }
@@ -54,6 +60,9 @@ classDiagram
         <<interface>>
     }
     class BusinessError {
+        <<interface>>
+    }
+    class DatabaseResult {
         <<interface>>
     }
     class MultiAudienceGenOptions {
@@ -158,20 +167,13 @@ classDiagram
     class CacheEntry {
         <<interface>>
     }
-    class ActionMapEntry {
-        <<interface>>
-    }
-    class ActionMap {
-        <<interface>>
-    }
-    class DatabaseResult {
-        <<interface>>
-    }
 
     %% Styling
     class DebugContext fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class DebugResult fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class DebugEntry fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
+    class CacheMetadata fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
+    class CacheEntry fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class CacheOptions fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class LogOptions fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class TypedDebugEntry fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
@@ -182,6 +184,7 @@ classDiagram
     class DatabaseError fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class FileSystemError fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class BusinessError fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
+    class DatabaseResult fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class MultiAudienceGenOptions fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class GeneratedDocs fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class GeneratedFile fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
@@ -218,7 +221,6 @@ classDiagram
     class CacheEntry fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class ActionMapEntry fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class ActionMap fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
-    class DatabaseResult fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class ConfigAnswers fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class WatchAnalysis fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff
     class Stats fill:#71B340,stroke:#5A8A32,stroke-width:2px,color:#fff

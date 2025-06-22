@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks';
 import { TemplateRegistry } from '../templates/registry.js';
 import type { Config, DebugContext, DebugEntry, Template, WrapOptions } from '../types/index.js';
 import { ActionMapRegistry } from './action-map.js';
-import { Cache } from './cache.js';
+import { DiskCache } from './disk-cache.js';
 import { FileLogger } from './logger.js';
 import { DebugPersistence } from './persistence.js';
 
@@ -38,9 +38,10 @@ import { DebugPersistence } from './persistence.js';
  * - Ensure config.features.debug.enabled is true
  * - Check file permissions for debug log directory
  */
+
 export class AIDebug {
   private config: Config;
-  private cache?: Cache;
+  private diskCache?: DiskCache;
   private logger?: FileLogger;
   private persistence?: DebugPersistence;
   public templateRegistry?: TemplateRegistry;
@@ -67,7 +68,7 @@ export class AIDebug {
     this.enabled = config.features.debug.enabled && process.env.NODE_ENV !== 'production';
 
     if (this.enabled) {
-      this.cache = new Cache(config.features.cache);
+      this.diskCache = new DiskCache(config.features.cache, config.persistence.baseDir);
       this.logger = FileLogger.getInstance(config.features.logging.file);
       this.persistence = new DebugPersistence(config.persistence);
       this.templateRegistry = new TemplateRegistry();
@@ -218,6 +219,7 @@ export class AIDebug {
     let result: T;
     let error: Error | undefined;
     let cached = false;
+    let cacheKey: string | undefined;
 
     try {
       // Get template
@@ -228,14 +230,14 @@ export class AIDebug {
       const template = this.templateRegistry.get(templateName);
 
       // Check cache
-      if (template.cache?.enabled && this.config.features.cache.enabled) {
-        const cacheKey = template.cache.key
-          ? template.cache.key(context)
-          : `${action}:${JSON.stringify(context)}`;
+      if (template.cache?.enabled && this.config.features.cache.enabled && this.diskCache) {
+        // Extract cache-relevant context
+        const cacheContext = template.cacheContext ? template.cacheContext(context) : context;
+        cacheKey = this.diskCache.generateKey(action, cacheContext);
 
-        const cachedResult = await this.cache?.get<T>(cacheKey);
-        if (cachedResult !== undefined) {
-          result = cachedResult;
+        const cachedResult = await this.diskCache.get(action, cacheKey);
+        if (cachedResult && !cachedResult.expired) {
+          result = cachedResult.data as T;
           cached = true;
         } else {
           // Execute function
@@ -248,7 +250,13 @@ export class AIDebug {
               typeof template.cache.ttl === 'function'
                 ? template.cache.ttl(result, context)
                 : template.cache.ttl;
-            await this.cache?.set(cacheKey, result, ttl);
+            await this.diskCache.set(
+              action,
+              cacheKey,
+              result,
+              ttl || this.config.features.cache.defaultTTL,
+              cacheContext,
+            );
           }
         }
       } else {
@@ -258,17 +266,29 @@ export class AIDebug {
 
       // Record success
       const duration = performance.now() - startTime;
-      await this.recordDebugEntry({
+      const entry: DebugEntry = {
         id: debugId,
         action,
-        key: context.key || action,
         timestamp: new Date().toISOString(),
         duration_ms: duration,
         status: 'success',
         data: template.debugData({ ...context, duration }, result, undefined),
         cached,
         templateUsed: templateName,
-      });
+      };
+
+      // Add cache info if caching was involved
+      if (cacheKey) {
+        entry.cacheKey = cacheKey;
+        if (cached) {
+          entry.cached = true;
+        }
+        if (template.cacheContext) {
+          entry.cacheContext = template.cacheContext(context);
+        }
+      }
+
+      await this.recordDebugEntry(entry);
 
       return result;
     } catch (err) {
@@ -285,7 +305,6 @@ export class AIDebug {
       await this.recordDebugEntry({
         id: debugId,
         action,
-        key: context.key || action,
         timestamp: new Date().toISOString(),
         duration_ms: duration,
         status: 'failure',
@@ -359,7 +378,6 @@ export class AIDebug {
     const entry: DebugEntry = {
       id: randomUUID(),
       action: 'log',
-      key: 'log',
       timestamp: new Date().toISOString(),
       duration_ms: 0,
       status: 'success',

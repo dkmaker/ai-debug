@@ -3,9 +3,6 @@ import { FileLogger } from '../../../src/core/logger.js';
 import type { DebugEntry } from '../../../src/types/index.js';
 import { flushPromises } from '../../test-utils.js';
 
-// Mock the entire fs module
-vi.mock('node:fs');
-
 describe('FileLogger', () => {
   let logger: FileLogger;
   let mockWriteStream: any;
@@ -23,7 +20,7 @@ describe('FileLogger', () => {
     vi.clearAllMocks();
 
     // Reset singleton instance
-    FileLogger.instance = undefined;
+    FileLogger.resetInstance();
 
     // Create mock write stream
     mockWriteStream = {
@@ -44,9 +41,7 @@ describe('FileLogger', () => {
   });
 
   afterEach(() => {
-    if (FileLogger.instance) {
-      FileLogger.getInstance(config).close();
-    }
+    FileLogger.resetInstance();
   });
 
   describe('singleton pattern', () => {
@@ -61,7 +56,12 @@ describe('FileLogger', () => {
       const fs = await import('node:fs');
       vi.mocked(fs.existsSync).mockReturnValue(false);
 
-      FileLogger.getInstance(config);
+      // Get instance with logging enabled
+      const testConfig = { ...config, enabled: true };
+      FileLogger.getInstance(testConfig);
+
+      // Verify it's enabled
+      expect(testConfig.enabled).toBe(true);
 
       expect(fs.mkdirSync).toHaveBeenCalledWith('./test-debug', { recursive: true });
     });
@@ -83,7 +83,6 @@ describe('FileLogger', () => {
       const entry: DebugEntry = {
         id: 'test-123',
         action: 'test_action',
-        key: 'test_key',
         timestamp: '2024-01-01T00:00:00.000Z',
         duration_ms: 100,
         status: 'success',
@@ -108,13 +107,12 @@ describe('FileLogger', () => {
       };
 
       // Create new instance with pretty format
-      FileLogger.instance = undefined;
+      FileLogger.resetInstance();
       const prettyLogger = FileLogger.getInstance(prettyConfig);
 
       const entry: DebugEntry = {
         id: 'test-123',
         action: 'test_action',
-        key: 'test_key',
         timestamp: '2024-01-01T00:00:00.000Z',
         duration_ms: 100,
         status: 'success',
@@ -141,7 +139,6 @@ describe('FileLogger', () => {
       const entry: DebugEntry = {
         id: 'test-123',
         action: 'test_action',
-        key: 'test_key',
         timestamp: new Date().toISOString(),
         duration_ms: 100,
         status: 'failure',
@@ -161,7 +158,6 @@ describe('FileLogger', () => {
         const entry: DebugEntry = {
           id: `test-${i}`,
           action: `action_${i}`,
-          key: `key_${i}`,
           timestamp: new Date().toISOString(),
           duration_ms: i,
           status: 'success',
@@ -191,7 +187,6 @@ describe('FileLogger', () => {
           const entry: DebugEntry = {
             id: `concurrent-${i}`,
             action: `action_${i}`,
-            key: `key_${i}`,
             timestamp: new Date().toISOString(),
             duration_ms: Math.random() * 100,
             status: Math.random() > 0.5 ? 'success' : 'failure',
@@ -226,7 +221,6 @@ describe('FileLogger', () => {
       const largeEntry: DebugEntry = {
         id: 'large',
         action: 'large_action',
-        key: 'large_key',
         timestamp: new Date().toISOString(),
         duration_ms: 100,
         status: 'success',
@@ -278,7 +272,6 @@ describe('FileLogger', () => {
       const entry: DebugEntry = {
         id: 'test',
         action: 'test',
-        key: 'test',
         timestamp: new Date().toISOString(),
         duration_ms: 100,
         status: 'success',
@@ -317,7 +310,6 @@ describe('FileLogger', () => {
       const entry: DebugEntry = {
         id: 'test',
         action: 'test',
-        key: 'test',
         timestamp: new Date().toISOString(),
         duration_ms: 100,
         status: 'success',
@@ -374,7 +366,6 @@ describe('FileLogger', () => {
           logger.log({
             id: `closing-${i}`,
             action: 'test',
-            key: 'test',
             timestamp: new Date().toISOString(),
             duration_ms: 100,
             status: 'success',
@@ -422,7 +413,6 @@ describe('FileLogger', () => {
       const entry: DebugEntry = {
         id: 'test',
         action: 'test',
-        key: 'test',
         timestamp: new Date().toISOString(),
         duration_ms: 100,
         status: 'success',

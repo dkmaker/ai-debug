@@ -32,8 +32,9 @@ export interface PersistenceConfig {
  * @class DebugPersistence
  *
  * Directory structures:
- * - key-based: baseDir/action/key/timestamp.json
- * - date-based: baseDir/YYYY/MM/DD/action-key-timestamp.json
+ * - key-based: baseDir/action/timestamp.json
+ * - date-based: baseDir/YYYY/MM/DD/action-timestamp.json
+ * - latest: baseDir/action/latest.json (copy of most recent entry)
  *
  * Features:
  * - Automatic directory creation
@@ -61,6 +62,7 @@ export class DebugPersistence {
   /**
    * Saves a debug entry to disk.
    * Creates necessary directories and applies compression if configured.
+   * Also updates the latest.json file for easy access to most recent entry.
    *
    * @param {DebugEntry} entry - Debug entry to save
    * @returns {Promise<void>}
@@ -69,7 +71,6 @@ export class DebugPersistence {
    * await persistence.save({
    *   id: '123',
    *   action: 'fetch_user',
-   *   key: 'user:123',
    *   timestamp: new Date().toISOString(),
    *   duration_ms: 45,
    *   status: 'success',
@@ -99,12 +100,19 @@ export class DebugPersistence {
       return value;
     };
 
+    const data = JSON.stringify(entry, replacer, 2);
+
     if (this.config.compression === 'gzip') {
-      const compressed = await this.compress(JSON.stringify(entry, replacer, 2));
+      const compressed = await this.compress(data);
       writeFileSync(path, compressed);
     } else {
-      const data = JSON.stringify(entry, replacer, 2);
       writeFileSync(path, data);
+    }
+
+    // Also save as latest.json (always uncompressed for easy access)
+    if (this.config.structure === 'key-based') {
+      const latestPath = join(this.config.baseDir, this.sanitizePath(entry.action), 'latest.json');
+      writeFileSync(latestPath, data);
     }
   }
 
@@ -127,20 +135,19 @@ export class DebugPersistence {
 
   private getEntryPath(entry: DebugEntry): string {
     if (this.config.structure === 'key-based') {
-      // Structure: baseDir/action/key/timestamp.json
+      // Structure: baseDir/action/timestamp.json
       const actionDir = this.sanitizePath(entry.action);
-      const keyDir = this.sanitizePath(entry.key);
       const timestamp = new Date(entry.timestamp).toISOString().replace(/[:.]/g, '-');
       const ext = this.config.compression === 'gzip' ? '.json.gz' : '.json';
-      return join(this.config.baseDir, actionDir, keyDir, `${timestamp}${ext}`);
+      return join(this.config.baseDir, actionDir, `${timestamp}${ext}`);
     }
-    // Structure: baseDir/YYYY/MM/DD/action-key-timestamp.json
+    // Structure: baseDir/YYYY/MM/DD/action-timestamp.json
     const date = new Date(entry.timestamp);
     const year = date.getFullYear().toString();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const ext = this.config.compression === 'gzip' ? '.json.gz' : '.json';
-    const filename = `${entry.action}-${entry.key}-${date.getTime()}${ext}`;
+    const filename = `${entry.action}-${date.getTime()}${ext}`;
     return join(this.config.baseDir, year, month, day, this.sanitizePath(filename));
   }
 
@@ -166,8 +173,14 @@ export class DebugPersistence {
     return gzipAsync(data);
   }
 
+  /**
+   * Generates a hash for deduplication purposes.
+   *
+   * @param {DebugEntry} entry - The debug entry
+   * @returns {string} An 8-character hash
+   */
   generateHash(entry: DebugEntry): string {
-    const content = `${entry.action}:${entry.key}:${JSON.stringify(entry.data)}`;
+    const content = `${entry.action}:${entry.timestamp}:${JSON.stringify(entry.data)}`;
     return createHash('sha256').update(content).digest('hex').substring(0, 8);
   }
 }

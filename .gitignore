@@ -48,6 +48,7 @@ Thumbs.db
 # Debug output (for development testing)
 debug/
 .ai-debug/
+examples/dkmaker-ai-debug.tgz
 !examples/.ai-debug
 
 # Temporary files

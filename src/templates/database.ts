@@ -1,18 +1,5 @@
-import { createHash } from 'node:crypto';
 import type { DatabaseError } from '../types/errors.js';
 import type { Template } from '../types/index.js';
-
-/**
- * Creates a short hash of data for cache keys.
- *
- * @param {unknown} data - Data to hash
- * @returns {string} 8-character hash
- * @private
- */
-function hash(data: unknown): string {
-  const str = JSON.stringify(data);
-  return createHash('sha256').update(str).digest('hex').slice(0, 8);
-}
 
 /**
  * Result structure from database operations.
@@ -156,6 +143,12 @@ function extractRowsExamined(result: unknown): number | undefined {
  */
 export const databaseTemplate: Template = {
   extends: 'base',
+  cacheContext: (context) => ({
+    host: context.host,
+    database: context.database,
+    sql: context.sql,
+    params: context.params,
+  }),
   debugData: (context, result, error) => ({
     query: {
       sql: context.sql,
@@ -180,7 +173,7 @@ export const databaseTemplate: Template = {
     },
   }),
   cache: {
-    key: (ctx) => `db:${ctx.database}:${hash(ctx.sql + JSON.stringify(ctx.params))}`,
+    enabled: true,
     ttl: 60 * 60 * 1000, // 1 hour
     shouldCache: (_result, ctx) => !!ctx?.sql?.trim().toUpperCase().startsWith('SELECT'),
   },

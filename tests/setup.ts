@@ -1,4 +1,14 @@
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
+import { FileLogger } from '../src/core/logger.js';
+
+// Global test cleanup
+afterEach(() => {
+  // Always reset FileLogger singleton between test files
+  FileLogger.resetInstance();
+});
+
+// Mock fs module globally to prevent real file operations in tests
+vi.mock('node:fs');
 
 // Mock crypto module globally before any tests run
 vi.mock('node:crypto', () => ({

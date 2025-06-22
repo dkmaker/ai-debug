@@ -83,7 +83,7 @@ interface LogQueueEntry {
  * - Use JSON format for programmatic parsing
  */
 export class FileLogger {
-  static instance: FileLogger | undefined;
+  private static instance: FileLogger | undefined;
   private config: FileLogConfig;
   private writeQueue: LogQueueEntry[] = [];
   private isWriting = false;
@@ -133,6 +133,18 @@ export class FileLogger {
   }
 
   /**
+   * Resets the singleton instance.
+   * Only use this for testing purposes.
+   * @internal
+   */
+  static resetInstance(): void {
+    if (FileLogger.instance) {
+      FileLogger.instance.close();
+      FileLogger.instance = undefined;
+    }
+  }
+
+  /**
    * Logs a debug entry to file.
    * Writes are queued and processed in batches.
    *
@@ -143,7 +155,6 @@ export class FileLogger {
    * await logger.log({
    *   id: '123',
    *   action: 'api_call',
-   *   key: 'users',
    *   timestamp: new Date().toISOString(),
    *   duration_ms: 150,
    *   status: 'success',
@@ -182,7 +193,18 @@ export class FileLogger {
       const lines = batch
         .map(({ entry }) => {
           if (this.config.format === 'json') {
-            return `${JSON.stringify(entry)}\n`;
+            // Handle circular references
+            const seen = new WeakSet();
+            const replacer = (_key: string, value: unknown) => {
+              if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                  return '[Circular]';
+                }
+                seen.add(value);
+              }
+              return value;
+            };
+            return `${JSON.stringify(entry, replacer)}\n`;
           }
           // Pretty format
           return `${this.formatPretty(entry)}\n`;

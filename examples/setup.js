@@ -236,15 +236,15 @@ const sampleLog = [
   '[2024-01-01T10:00:03.789Z] ERROR: Failed to process request: timeout',
   '[2024-01-01T10:00:04.012Z] INFO: Request processed successfully',
   '[2024-01-01T10:00:05.345Z] DEBUG: Cache hit for key: user:123'
-].join('\\n');
+].join('');
 
 writeFileSync('sample-data/app.log', sampleLog);
 
 console.log(chalk.green('✅ Created sample data files'));
 
-console.log(chalk.blue('\\n🎉 Setup complete! Run examples with:'));
+console.log(chalk.blue('🎉 Setup complete! Run examples with:'));
 console.log(chalk.yellow('  npm run http      # HTTP examples'));
 console.log(chalk.yellow('  npm run database  # Database examples'));
 console.log(chalk.yellow('  npm run files     # File I/O examples'));
 console.log(chalk.yellow('  npm run all       # Run all examples'));
-console.log(chalk.blue('\\n📊 Check debug data in ./debug/ directory'));
+console.log(chalk.blue('📊 Check debug data in ./debug/ directory'));

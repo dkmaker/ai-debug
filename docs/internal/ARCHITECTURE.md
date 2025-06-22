@@ -40,6 +40,14 @@ Represents a single debug.wrap() or debug.raw() call in the code.
 
 ### Caching
 
+#### CacheMetadata
+
+Metadata for cache entries and statistics.
+
+#### CacheEntry
+
+Cache entry stored on disk.
+
 #### CacheOptions
 
 Options for controlling caching behavior in templates.

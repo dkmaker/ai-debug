@@ -9,17 +9,17 @@ For external/public API documentation, see the external documentation.
 
 ### Coverage Statistics
 
-- **Total documented elements**: 84
+- **Total documented elements**: 83
 - **Classes**: 0
-- **Interfaces**: 50
-- **Functions**: 32
+- **Interfaces**: 52
+- **Functions**: 29
 - **Methods**: 0
 - **Constants**: 0
 - **Types**: 2
 
 ### Documentation Quality
 
-- **Elements with examples**: 13 (15%)
+- **Elements with examples**: 14 (17%)
 - **Elements with workflows**: 0
 
 ## Interfaces
@@ -76,7 +76,6 @@ This is what gets logged to files and can be analyzed later.
 const entry: DebugEntry = {
   id: '123e4567-e89b-12d3-a456-426614174000',
   action: 'fetch_user',
-  key: 'user:123',
   timestamp: '2024-01-01T12:00:00.000Z',
   duration_ms: 145,
   status: 'success',
@@ -85,6 +84,43 @@ const entry: DebugEntry = {
   templateUsed: 'http'
 };
 ```
+
+
+### CacheMetadata
+
+Metadata for cache entries and statistics.
+Tracks cache usage patterns and helps with performance analysis.
+
+**Examples:**
+
+*Example 1*
+
+```typescript
+const metadata: CacheMetadata = {
+  entries: {
+    'a1b2c3d4': {
+      context: { method: 'GET', url: '/api/users' },
+      created: '2024-01-01T12:00:00.000Z',
+      lastAccessed: '2024-01-01T12:05:00.000Z',
+      hitCount: 5,
+      size: 2048,
+      ttl: 300000,
+      expired: false
+    }
+  },
+  stats: {
+    totalHits: 100,
+    totalMisses: 20,
+    totalSize: 51200
+  }
+};
+```
+
+
+### CacheEntry
+
+Cache entry stored on disk.
+Contains the cached data and metadata about when it was created.
 
 
 ### CacheOptions
@@ -99,8 +135,7 @@ Allows fine-grained control over what gets cached and for how long.
 ```typescript
 const cacheOptions: CacheOptions = {
   enabled: true,
-  ttl: 300, // 5 minutes
-  key: (context) => `api:${context.url}:${context.method}`,
+  ttl: 300, // 5 minutes in seconds
   shouldCache: (result) => result.status === 200
 };
 ```
@@ -154,7 +189,6 @@ interface UserDebugData {
 const entry: TypedDebugEntry<UserDebugData> = {
   id: '123',
   action: 'fetch_user',
-  key: 'user:123',
   timestamp: '2024-01-01T12:00:00.000Z',
   duration_ms: 145,
   status: 'success',
@@ -186,9 +220,12 @@ const apiTemplate: Template = {
   }),
   cache: {
     enabled: true,
-    ttl: 300,
-    key: (ctx) => `api:${ctx.method}:${ctx.url}`
-  }
+    ttl: 300
+  },
+  cacheContext: (ctx) => ({
+    method: ctx.method,
+    url: ctx.url
+  })
 };
 ```
 
@@ -280,6 +317,11 @@ const error: BusinessError = {
   }
 };
 ```
+
+
+### DatabaseResult
+
+Result structure from database operations.
 
 
 ### MultiAudienceGenOptions
@@ -517,11 +559,6 @@ const actionMap: ActionMap = {
 ```
 
 
-### DatabaseResult
-
-Result structure from database operations.
-
-
 ### ConfigAnswers
 
 Answers from interactive configuration prompts.
@@ -608,28 +645,6 @@ function findTypeScriptFiles(): void
 ```
 
 
-### generateBuildTimeDocs
-
-Main build-time documentation generator.
-
-**Signature:**
-
-```typescript
-function generateBuildTimeDocs(): void
-```
-
-
-### ensureDirectoryExists
-
-Ensures a directory exists, creating it if necessary.
-
-**Signature:**
-
-```typescript
-function ensureDirectoryExists(): void
-```
-
-
 ### truncateBody
 
 Truncates large message bodies for logging.
@@ -709,25 +724,6 @@ function calculateSize(data: unknown): unknown
 `unknown` - Size in bytes
 
 
-### hash
-
-Creates a short hash of data for cache keys.
-
-**Signature:**
-
-```typescript
-function hash(data: unknown): string
-```
-
-**Parameters:**
-
-- `data` (`unknown`): Data to hash
-
-**Returns:**
-
-`string` - 8-character hash
-
-
 ### extractFields
 
 Extracts field names from database result.
@@ -803,25 +799,6 @@ function extractRowsExamined(result: unknown): number | undefined
 **Returns:**
 
 `number | undefined` - Number of rows examined by query
-
-
-### hash
-
-Creates a short hash of data for cache keys.
-
-**Signature:**
-
-```typescript
-function hash(data: unknown): string
-```
-
-**Parameters:**
-
-- `data` (`unknown`): Data to hash
-
-**Returns:**
-
-`string` - 8-character hash
 
 
 ### createCircularReplacer
@@ -920,6 +897,28 @@ function identifyImportantFields(obj: unknown): string[]
 **Returns:**
 
 `string[]` - Array of important field names
+
+
+### generateBuildTimeDocs
+
+Main build-time documentation generator.
+
+**Signature:**
+
+```typescript
+function generateBuildTimeDocs(): void
+```
+
+
+### ensureDirectoryExists
+
+Ensures a directory exists, creating it if necessary.
+
+**Signature:**
+
+```typescript
+function ensureDirectoryExists(): void
+```
 
 
 ### processEntry
@@ -1041,17 +1040,6 @@ function findNodeModuleRoot(): void
 ```
 
 
-### getPackageVersion
-
-Gets the current package version.
-
-**Signature:**
-
-```typescript
-function getPackageVersion(): void
-```
-
-
 ### copyDirectory
 
 Copies a directory recursively.
@@ -1067,12 +1055,12 @@ function copyDirectory(): void
 
 Type aliases and utility types.
 
-### DiagramType
-
-Types of Mermaid diagrams that can be generated.
-
-
 ### HashFunction
 
 Type definition for hash function that can be injected.
+
+
+### DiagramType
+
+Types of Mermaid diagrams that can be generated.
 

@@ -57,7 +57,7 @@ class MockHttpClient {
 }
 
 async function basicGetRequest() {
-  console.log(chalk.yellow('\\n📥 Testing basic GET request...'));
+  console.log(chalk.yellow('📥 Testing basic GET request...'));
   
   /*DEBUG:START*/
   const users = await debug.wrap('fetch_users_list', async () => {
@@ -80,7 +80,7 @@ async function basicGetRequest() {
 }
 
 async function basicPostRequest() {
-  console.log(chalk.yellow('\\n📤 Testing basic POST request...'));
+  console.log(chalk.yellow('📤 Testing basic POST request...'));
   
   const newUser = {
     name: 'Bob Wilson',
@@ -110,7 +110,7 @@ async function basicPostRequest() {
 }
 
 async function cachedRequest() {
-  console.log(chalk.yellow('\\n🔄 Testing cached requests...'));
+  console.log(chalk.yellow('🔄 Testing cached requests...'));
   
   // First request (cache miss)
   /*DEBUG:START*/
@@ -147,7 +147,7 @@ async function cachedRequest() {
 }
 
 async function requestWithHeaders() {
-  console.log(chalk.yellow('\\n🔐 Testing request with authentication...'));
+  console.log(chalk.yellow('🔐 Testing request with authentication...'));
   
   /*DEBUG:START*/
   const secureData = await debug.wrap('fetch_secure_data', async () => {
@@ -181,7 +181,7 @@ async function requestWithHeaders() {
 }
 
 async function runBasicHttpExamples() {
-  console.log(chalk.blue('\\n🚀 Starting Basic HTTP Examples\\n'));
+  console.log(chalk.blue('🚀 Starting Basic HTTP Examples'));
   
   try {
     await basicGetRequest();
@@ -189,7 +189,7 @@ async function runBasicHttpExamples() {
     await cachedRequest();
     await requestWithHeaders();
     
-    console.log(chalk.green('\\n✅ All basic HTTP examples completed successfully!'));
+    console.log(chalk.green('✅ All basic HTTP examples completed successfully!'));
     console.log(chalk.blue('📊 Check ./debug/ directory for debug data'));
     
   } catch (error) {

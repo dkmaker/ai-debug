@@ -8,7 +8,6 @@ import type { Template } from '../types/index.js';
  *
  * Captured fields:
  * - action: Operation identifier
- * - key: Cache key or identifier
  * - timestamp: ISO timestamp of operation
  * - duration_ms: Operation duration
  * - status: 'success' or 'failure'
@@ -30,15 +29,18 @@ import type { Template } from '../types/index.js';
  * };
  */
 export const baseTemplate: Template = {
-  debugData: (context, result, error) => ({
-    action: context.action,
-    key: context.key,
-    timestamp: new Date().toISOString(),
-    duration_ms: context.duration,
-    status: error ? 'failure' : 'success',
-    error: error?.message,
-    result: error ? undefined : result,
-  }),
+  debugData: (context, result, error) => {
+    const data: Record<string, unknown> = {
+      action: context.action,
+      timestamp: new Date().toISOString(),
+      duration_ms: context.duration,
+      status: error ? 'failure' : 'success',
+      error: error?.message,
+      result: error ? undefined : result,
+    };
+
+    return data;
+  },
   cache: {
     enabled: true,
     ttl: 60 * 60 * 1000, // 1 hour

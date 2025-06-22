@@ -252,25 +252,6 @@ function findNodeModuleRoot(): string | null {
 }
 
 /**
- * Gets the current package version.
- */
-function getPackageVersion(): string | null {
-  try {
-    const packageRoot = findPackageRoot(process.cwd()) || findNodeModuleRoot();
-    if (packageRoot) {
-      const packageJsonPath = join(packageRoot, 'package.json');
-      if (existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-        return pkg.version;
-      }
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Copies a directory recursively.
  */
 function copyDirectory(source: string, target: string, force: boolean): void {
